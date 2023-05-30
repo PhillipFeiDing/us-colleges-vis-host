@@ -1,0 +1,2882 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>College Explorer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+    <style>
+        .nav-icon {
+            margin-right: 0.5em;
+            transform: translate(0, -2px);
+        }
+
+        .card-icon {
+            margin-right: 0.2em;
+            transform: translate(0, -1px);
+        }
+
+        .shape-no-display {
+            display: none !important;
+        }
+
+        .explore-card-county:hover {
+            fill: red;
+            opacity: 0.75
+        }
+
+        /* Explore Card Styles */
+        .explore-card-state {
+            fill: none;
+            stroke: #aaa;
+            stroke-linejoin: bevel;
+        }
+
+        .explore-card-school {
+            fill: green;
+        }
+
+        .explore-card-school:hover {
+            fill: orange;
+            opacity: 1.0;
+            transform-box: fill-box;
+            transform-origin: center;
+            transform: scale(2);
+            cursor: pointer;
+        }
+
+        #explore-card-legend-title {
+            text-anchor: end;
+            font-size: 0.8em;
+            fill: black;
+            cursor: default;
+        }
+
+        .explore-card-legend-text {
+            fill: black;
+            text-anchor: middle;
+            font-size: 0.625em;
+        }
+
+        #explore-card-tooltip {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            width: auto;
+            height: auto;
+            padding: 5px;
+            border-radius: 5px;
+            pointer-events: none;
+        }
+
+        #explore-card-svg {
+            position: relative;
+        }
+
+        #explore-card-button-group {
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+        }
+
+        /* Configure Card Styles */
+        .configure-card-left {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+            height: 100%;
+        }
+
+        .configure-card-right {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            padding-bottom: 0 !important;
+        }
+
+        .configure-card-top {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            position: relative;
+            top: 1px;
+        }
+
+        .configure-card-bottom {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            padding-bottom: 0 !important;
+            padding-top: 0.25em;
+            padding-left: 0;
+            padding-right: 0;
+        }
+
+        .configure-card-container .btn {
+            margin-bottom: 0.25rem;
+            margin-left: 0.125rem;
+            margin-right: 0.125rem;
+        }
+
+        .configure-card-group-btn:hover {
+            background-color: orange;
+        }
+
+        .configure-card-group-type {
+            cursor: pointer;
+        }
+
+        .configure-card-group-type:hover {
+            background-color: #d3d4d5;
+            transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+        }
+
+        /* Summary Card Styles */
+        .summary-card-heat-map-text {
+            font-size: 0.8em;
+        }
+
+        .summary-card-heat-map-tiles {
+            rx: 4;
+            ry: 4;
+            fill: #0d6efd;
+            stroke: none;
+        }
+
+        .summary-card-heat-map-tiles:hover {
+            stroke-width: 1.5;
+            stroke: orange;
+            stroke-opacity: 1;
+        }
+
+        .summary-card-composition-arc {
+            stroke: rgba(248, 249, 250, 1);
+            stroke-width: 1.5px;
+        }
+
+        .summary-card-composition-arc:hover {
+            stroke: none;
+        }
+
+        .summary-card-treemap-node {
+            box-sizing: border-box;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        #summary-card-composition-svg-4 {
+            position: relative;
+        }
+
+        /* Box Plot Styles */
+        .box-plot-rect {
+            fill: lightblue;
+            stroke-width: 1;
+            stroke: rgb(128, 128, 128);
+        }
+
+        .box-plot-line {
+            stroke-width: 1;
+            stroke: rgb(128, 128, 128);
+        }
+
+        .box-plot-text {
+            font-size: 0.6em;
+            color: black;
+            text-anchor: middle;
+        }
+
+        .box-plot-cell {
+            position: relative;
+        }
+
+        .box-plot-cell p {
+            margin: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Histogram Styles */
+        .demogr-card-histo-display-rect {
+            fill: lightblue;
+        }
+
+        .demogr-card-histo-button-rect {
+            fill: rgba(0, 0, 0, 0);
+        }
+
+        /* Lower Cards Styles */
+        .lower-cards-toggle {
+            border: 0;
+            padding: 0;
+            display: inline;
+            font-size: 1em;
+            position: relative;
+            bottom: 1.25px;
+        }
+
+        #lower-cards-container p {
+            font-size: 0.75em;
+        }
+
+        /* College List Card Styles */
+        .college-list-prompt p,
+        .college-list-prompt .dropdown {
+            display: inline;
+        }
+
+        .college-list-prompt p {
+            position: relative;
+            bottom: 0.15rem;
+            padding-bottom: 0.85rem;
+        }
+
+        .college-list-prompt button {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+
+    <!-- External Library Dependencies -->
+    <script src="https://unpkg.com/topojson-client@3"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.min.js"
+        integrity="sha384-Atwg2Pkwv9vp0ygtn1JAojH0nYbwNJLPhwyoVbhoPwBhjQPR5VtM2+xf0Uwh9KtT" crossorigin="anonymous">
+    </script>
+</head>
+
+<body>
+    <nav class="navbar sticky-top navbar-dark bg-dark mb-4">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="#fff"
+                    class="bi bi-mortarboard nav-icon" viewBox="0 0 16 16">
+                    <path
+                        d="M8.211 2.047a.5.5 0 0 0-.422 0l-7.5 3.5a.5.5 0 0 0 .025.917l7.5 3a.5.5 0 0 0 .372 0L14 7.14V13a1 1 0 0 0-1 1v2h3v-2a1 1 0 0 0-1-1V6.739l.686-.275a.5.5 0 0 0 .025-.917l-7.5-3.5ZM8 8.46 1.758 5.965 8 3.052l6.242 2.913L8 8.46Z" />
+                    <path
+                        d="M4.176 9.032a.5.5 0 0 0-.656.327l-.5 1.7a.5.5 0 0 0 .294.605l4.5 1.8a.5.5 0 0 0 .372 0l4.5-1.8a.5.5 0 0 0 .294-.605l-.5-1.7a.5.5 0 0 0-.656-.327L8 10.466 4.176 9.032Zm-.068 1.873.22-.748 3.496 1.311a.5.5 0 0 0 .352 0l3.496-1.311.22.748L8 12.46l-3.892-1.556Z" />
+                </svg>
+                <span>U.S. Colleges and Universities</span>
+            </a>
+        </div>
+    </nav>
+    <div class="container text-center">
+        <div class="row">
+            <div class="col-sm mb-4">
+                <div class="card text-bg-light" id="summary-card-container">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-speedometer2" viewBox="0 0 16 16">
+                            <path
+                                d="M8 4a.5.5 0 0 1 .5.5V6a.5.5 0 0 1-1 0V4.5A.5.5 0 0 1 8 4zM3.732 5.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 10a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 10zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 9.31a.91.91 0 1 0 1.302 1.258l3.434-4.297a.389.389 0 0 0-.029-.518z" />
+                            <path fill-rule="evenodd"
+                                d="M0 10a8 8 0 1 1 15.547 2.661c-.442 1.253-1.845 1.602-2.932 1.25C11.309 13.488 9.475 13 8 13c-1.474 0-3.31.488-4.615.911-1.087.352-2.49.003-2.932-1.25A7.988 7.988 0 0 1 0 10zm8-7a7 7 0 0 0-6.603 9.329c.203.575.923.876 1.68.63C4.397 12.533 6.358 12 8 12s3.604.532 4.923.96c.757.245 1.477-.056 1.68-.631A7 7 0 0 0 8 3z" />
+                        </svg>
+                        <span>Summary</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row mb-3">
+                                <div class="col-sm-3">
+                                    <h5>Count</h5>
+                                    <h4 class="card-title" id="summary-card-count"></h4>
+                                    <h5 class="hidden-when-no-school">Degree</h5>
+                                    <!-- Heat Map Container -->
+                                    <div id="summary-card-degree-svg" class="hidden-when-no-school"></div>
+                                </div>
+                                <div class="col-sm-9 hidden-when-no-school">
+                                    <h5>Composition</h5>
+                                    <div class="btn-group btn-group-sm mb-2" role="group">
+                                        <button type="button" class="btn btn-primary"
+                                            id="summary-card-composition-donut-button">Donut Chart</button>
+                                        <button type="button" class="btn btn-outline-primary"
+                                            id="summary-card-composition-tree-button">Treemap</button>
+                                    </div>
+                                    <div id="summary-card-composition-donut-group" class="row">
+                                        <div class="col-sm">
+                                            <h6>Control</h6>
+                                            <div id="summary-card-composition-svg-1"></div>
+                                        </div>
+                                        <div class="col-sm">
+                                            <h6>Region</h6>
+                                            <div id="summary-card-composition-svg-2"></div>
+                                        </div>
+                                        <div class="col-sm">
+                                            <h6>Locale</h6>
+                                            <div id="summary-card-composition-svg-3"></div>
+                                        </div>
+                                    </div>
+                                    <div id="summary-card-composition-svg-4" class="shape-no-display"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-8 mb-4">
+                <div class="card text-bg-light">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-binoculars card-icon" viewBox="0 0 16 16">
+                            <path
+                                d="M3 2.5A1.5 1.5 0 0 1 4.5 1h1A1.5 1.5 0 0 1 7 2.5V5h2V2.5A1.5 1.5 0 0 1 10.5 1h1A1.5 1.5 0 0 1 13 2.5v2.382a.5.5 0 0 0 .276.447l.895.447A1.5 1.5 0 0 1 15 7.118V14.5a1.5 1.5 0 0 1-1.5 1.5h-3A1.5 1.5 0 0 1 9 14.5v-3a.5.5 0 0 1 .146-.354l.854-.853V9.5a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5v.793l.854.853A.5.5 0 0 1 7 11.5v3A1.5 1.5 0 0 1 5.5 16h-3A1.5 1.5 0 0 1 1 14.5V7.118a1.5 1.5 0 0 1 .83-1.342l.894-.447A.5.5 0 0 0 3 4.882V2.5zM4.5 2a.5.5 0 0 0-.5.5V3h2v-.5a.5.5 0 0 0-.5-.5h-1zM6 4H4v.882a1.5 1.5 0 0 1-.83 1.342l-.894.447A.5.5 0 0 0 2 7.118V13h4v-1.293l-.854-.853A.5.5 0 0 1 5 10.5v-1A1.5 1.5 0 0 1 6.5 8h3A1.5 1.5 0 0 1 11 9.5v1a.5.5 0 0 1-.146.354l-.854.853V13h4V7.118a.5.5 0 0 0-.276-.447l-.895-.447A1.5 1.5 0 0 1 12 4.882V4h-2v1.5a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5V4zm4-1h2v-.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5V3zm4 11h-4v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V14zm-8 0H2v.5a.5.5 0 0 0 .5.5h3a.5.5 0 0 0 .5-.5V14z" />
+                        </svg>
+                        <span>Explore</span>
+                    </div>
+                    <div class="card-body" id="explore-card-container">
+                        <!-- Choropleth Map Container -->
+                        <div id="explore-card-svg"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-4 mb-4">
+                <div class="card text-bg-light">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-gear card-icon" viewBox="0 0 16 16">
+                            <path
+                                d="M8 4.754a3.246 3.246 0 1 0 0 6.492 3.246 3.246 0 0 0 0-6.492zM5.754 8a2.246 2.246 0 1 1 4.492 0 2.246 2.246 0 0 1-4.492 0z" />
+                            <path
+                                d="M9.796 1.343c-.527-1.79-3.065-1.79-3.592 0l-.094.319a.873.873 0 0 1-1.255.52l-.292-.16c-1.64-.892-3.433.902-2.54 2.541l.159.292a.873.873 0 0 1-.52 1.255l-.319.094c-1.79.527-1.79 3.065 0 3.592l.319.094a.873.873 0 0 1 .52 1.255l-.16.292c-.892 1.64.901 3.434 2.541 2.54l.292-.159a.873.873 0 0 1 1.255.52l.094.319c.527 1.79 3.065 1.79 3.592 0l.094-.319a.873.873 0 0 1 1.255-.52l.292.16c1.64.893 3.434-.902 2.54-2.541l-.159-.292a.873.873 0 0 1 .52-1.255l.319-.094c1.79-.527 1.79-3.065 0-3.592l-.319-.094a.873.873 0 0 1-.52-1.255l.16-.292c.893-1.64-.902-3.433-2.541-2.54l-.292.159a.873.873 0 0 1-1.255-.52l-.094-.319zm-2.633.283c.246-.835 1.428-.835 1.674 0l.094.319a1.873 1.873 0 0 0 2.693 1.115l.291-.16c.764-.415 1.6.42 1.184 1.185l-.159.292a1.873 1.873 0 0 0 1.116 2.692l.318.094c.835.246.835 1.428 0 1.674l-.319.094a1.873 1.873 0 0 0-1.115 2.693l.16.291c.415.764-.42 1.6-1.185 1.184l-.291-.159a1.873 1.873 0 0 0-2.693 1.116l-.094.318c-.246.835-1.428.835-1.674 0l-.094-.319a1.873 1.873 0 0 0-2.692-1.115l-.292.16c-.764.415-1.6-.42-1.184-1.185l.159-.291A1.873 1.873 0 0 0 1.945 8.93l-.319-.094c-.835-.246-.835-1.428 0-1.674l.319-.094A1.873 1.873 0 0 0 3.06 4.377l-.16-.292c-.415-.764.42-1.6 1.185-1.184l.292.159a1.873 1.873 0 0 0 2.692-1.115l.094-.319z" />
+                        </svg>
+                        <span>Configure</span>
+                    </div>
+                    <div class="card-body p-1">
+                        <div class="input-group input-group-sm mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text configure-card-left configure-card-group-type"
+                                    value="predominantDegree">Predominant Degree</span>
+                            </div>
+                            <div type="text" class="form-control configure-card-right configure-card-container"
+                                id="configure-card-predominant-degree-options"></div>
+                        </div>
+                        <div class="input-group input-group-sm mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text configure-card-left configure-card-group-type"
+                                    value="highestDegree">Highest Degree</span>
+                            </div>
+                            <div type="text" class="form-control configure-card-right configure-card-container"
+                                id="configure-card-highest-degree-options"></div>
+                        </div>
+                        <div class="input-group input-group-sm mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text configure-card-left configure-card-group-type"
+                                    value="control">Control</span>
+                            </div>
+                            <div type="text" class="form-control configure-card-right configure-card-container"
+                                id="configure-card-control-options"></div>
+                        </div>
+                        <div class="text-bg-light mb-1">
+                            <div class="input-group-text configure-card-top configure-card-group-type" value="region">
+                                <span value="region">Region</span>
+                            </div>
+                            <div class="form-control configure-card-container configure-card-bottom"
+                                id="configure-card-region-options"></div>
+                        </div>
+                        <div class="text-bg-light mb-1">
+                            <div class="input-group-text configure-card-top configure-card-group-type" value="locale">
+                                <span value="locale">Locale</span>
+                            </div>
+                            <div class="form-control configure-card-container configure-card-bottom"
+                                id="configure-card-locale-options"></div>
+                        </div>
+                        <div class="input-group input-group-sm mb-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text configure-card-left configure-card-group-type"
+                                    value="search-text">Name Contains</span>
+                            </div>
+                            <input type="text" class="form-control" id="configure-card-text-search"
+                                aria-describedby="basic-addon3">
+                            <span class="input-group-text">
+                                <div class="form-check form-switch form-check-inline"
+                                    style="margin: 0; position: relative; top: 1.5px;">
+                                    <input class="form-check-input" type="checkbox"
+                                        id="configure-card-case-sensitive-switch">
+                                    <label class="form-check-label"
+                                        for="configure-card-case-sensitive-switch">Case</label>
+                                </div>
+                            </span>
+                        </div>
+                        <div class="float-end clear-fix">
+                            <button type="button" class="btn btn-light" id="configure-card-clear-button">Clear</button>
+                            <button type="button" class="btn btn-light" id="configure-card-reset-button">Reset</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm mb-4">
+                <div class="card text-bg-light">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-card-list" viewBox="0 0 16 16">
+                            <path
+                                d="M14.5 3a.5.5 0 0 1 .5.5v9a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h13zm-13-1A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 14.5 2h-13z" />
+                            <path
+                                d="M5 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 5 8zm0-2.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm0 5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5zm-1-5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zM4 8a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm0 2.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0z" />
+                        </svg>
+                        <span>College List (Under Construction)</span>
+                    </div>
+                    <div class="card-body college-list-prompt">
+                        <p><b>Order</b>: sorted by </p>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-1" data-bs-toggle="dropdown" aria-expanded="false">
+                                None
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-1">
+                                <li><a class="dropdown-item" value="none">None</a></li>
+                                <li><a class="dropdown-item" value="name">Name</a></li>
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-4" data-bs-toggle="dropdown" aria-expanded="false">
+                                ascending
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-4">
+                                <li><a class="dropdown-item" href="#">ascending</a></li>
+                                <li><a class="dropdown-item" href="#">descending</a></li>
+                            </ul>
+                        </div>
+                        <p> then by </p>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-2" data-bs-toggle="dropdown" aria-expanded="false">
+                                None
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-2">
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-5" data-bs-toggle="dropdown" aria-expanded="false">
+                                ascending
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-5">
+                                <li><a class="dropdown-item" href="#">ascending</a></li>
+                                <li><a class="dropdown-item" href="#">descending</a></li>
+                            </ul>
+                        </div>
+                        <p> finally by </p>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-3" data-bs-toggle="dropdown" aria-expanded="false">
+                                None
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-3">
+                            </ul>
+                        </div>
+                        <div class="dropdown">
+                            <button class="btn btn-secondary dropdown-toggle" type="button"
+                                id="college-list-dropdown-button-6" data-bs-toggle="dropdown" aria-expanded="false">
+                                ascending
+                            </button>
+                            <ul class="dropdown-menu" aria-labelledby="college-list-dropdown-button-6">
+                                <li><a class="dropdown-item" href="#">ascending</a></li>
+                                <li><a class="dropdown-item" href="#">descending</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row" id="lower-cards-container">
+            <div class="col-sm mb-4">
+                <div class="card text-bg-light">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-people card-icon" viewBox="0 0 16 16">
+                            <path
+                                d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" />
+                        </svg>
+                        <span>Demogr.</span></div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Admission Rate %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-1"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>ACT Median</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-2"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>SAT Average</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-3"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Undergrad Population</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="demogr-card-svg-4"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Nonresident Aliens %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-5"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Part-time Undergrads %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-6"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Completion in 150% time %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-7"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Retention %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-8"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Undergrads 25+ y.o. %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-9"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>3 Year Default %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-10"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Average Age of Entry</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="demogr-card-svg-11"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm mb-4">
+                <div class="card text-bg-light">
+                    <div class="card-header">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-cash-coin card-icon" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd"
+                                d="M11 15a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm5-4a5 5 0 1 1-10 0 5 5 0 0 1 10 0z" />
+                            <path
+                                d="M9.438 11.944c.047.596.518 1.06 1.363 1.116v.44h.375v-.443c.875-.061 1.386-.529 1.386-1.207 0-.618-.39-.936-1.09-1.1l-.296-.07v-1.2c.376.043.614.248.671.532h.658c-.047-.575-.54-1.024-1.329-1.073V8.5h-.375v.45c-.747.073-1.255.522-1.255 1.158 0 .562.378.92 1.007 1.066l.248.061v1.272c-.384-.058-.639-.27-.696-.563h-.668zm1.36-1.354c-.369-.085-.569-.26-.569-.522 0-.294.216-.514.572-.578v1.1h-.003zm.432.746c.449.104.655.272.655.569 0 .339-.257.571-.709.614v-1.195l.054.012z" />
+                            <path
+                                d="M1 0a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h4.083c.058-.344.145-.678.258-1H3a2 2 0 0 0-2-2V3a2 2 0 0 0 2-2h10a2 2 0 0 0 2 2v3.528c.38.34.717.728 1 1.154V1a1 1 0 0 0-1-1H1z" />
+                            <path d="M9.998 5.083 10 5a2 2 0 1 0-3.132 1.65 5.982 5.982 0 0 1 3.13-1.567z" />
+                        </svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                            class="bi bi-briefcase card-icon" viewBox="0 0 16 16">
+                            <path
+                                d="M6.5 1A1.5 1.5 0 0 0 5 2.5V3H1.5A1.5 1.5 0 0 0 0 4.5v8A1.5 1.5 0 0 0 1.5 14h13a1.5 1.5 0 0 0 1.5-1.5v-8A1.5 1.5 0 0 0 14.5 3H11v-.5A1.5 1.5 0 0 0 9.5 1h-3zm0 1h3a.5.5 0 0 1 .5.5V3H6v-.5a.5.5 0 0 1 .5-.5zm1.886 6.914L15 7.151V12.5a.5.5 0 0 1-.5.5h-13a.5.5 0 0 1-.5-.5V7.15l6.614 1.764a1.5 1.5 0 0 0 .772 0zM1.5 4h13a.5.5 0 0 1 .5.5v1.616L8.129 7.948a.5.5 0 0 1-.258 0L1 6.116V4.5a.5.5 0 0 1 .5-.5z" />
+                        </svg>
+                        <span>Finance & Career</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="container">
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Average Cost</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-1"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Expenditure Per Student</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-2"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Average Faculty Salary</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-3"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Undergrads with Pell Grant %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="finance-card-svg-4"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Pell Grant Recipients %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="finance-card-svg-5"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Federal Loans %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Box Plot Container -->
+                                    <div id="finance-card-svg-6"></div>
+                                </div>
+                            </div>
+                            <div class="row median-debt-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Median Debt <button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="overall">Overall</button>
+                                    </p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-7"></div>
+                                </div>
+                            </div>
+                            <div class="row median-debt-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Median Debt <button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="graduation">Graduation</button></p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-8"></div>
+                                </div>
+                            </div>
+                            <div class="row median-debt-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Median Debt <button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="withdrawal">Withdrawal</button></p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-9"></div>
+                                </div>
+                            </div>
+                            <div class="row family-income-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p><button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="average">Average</button>
+                                        Family Income</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-10"></div>
+                                </div>
+                            </div>
+                            <div class="row family-income-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p><button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="median">Median</button> Family
+                                        Income</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-11"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Poverty Rate %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-12"></div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p>Employment After 8 Years %</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-13"></div>
+                                </div>
+                            </div>
+                            <div class="row earnings-8-years-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p><button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="mean">Mean</button> Earnings
+                                        After 8 Years</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-14"></div>
+                                </div>
+                            </div>
+                            <div class="row earnings-8-years-group">
+                                <div class="col-4 box-plot-cell px-0">
+                                    <p><button type="button" class="btn btn-link lower-cards-toggle"
+                                            value="median">Median</button>
+                                        Earnings After 8 Years</p>
+                                </div>
+                                <div class="col px-0 py-2">
+                                    <!-- Histogram Container -->
+                                    <div id="finance-card-svg-15"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const _0x84fe1d = _0xda1b;
+        (function (_0x13841a, _0xb842cd) {
+            const _0x4d877b = _0xda1b,
+                _0x18a5fe = _0x13841a();
+            while (!![]) {
+                try {
+                    const _0x588a1a =
+                        parseInt(_0x4d877b(0x2c6)) / 0x1 +
+                        parseInt(_0x4d877b(0x1ff)) / 0x2 +
+                        (parseInt(_0x4d877b(0x211)) / 0x3) *
+                        (-parseInt(_0x4d877b(0x2f5)) / 0x4) +
+                        (parseInt(_0x4d877b(0x29c)) / 0x5) *
+                        (-parseInt(_0x4d877b(0x235)) / 0x6) +
+                        -parseInt(_0x4d877b(0x2e1)) / 0x7 +
+                        -parseInt(_0x4d877b(0x2a7)) / 0x8 +
+                        (parseInt(_0x4d877b(0x240)) / 0x9) * (parseInt(_0x4d877b(0x2ea)) / 0xa);
+                    if (_0x588a1a === _0xb842cd) break;
+                    else _0x18a5fe["push"](_0x18a5fe["shift"]());
+                } catch (_0xff04c8) {
+                    _0x18a5fe["push"](_0x18a5fe["shift"]());
+                }
+            }
+        })(_0x32fa, 0xef706),
+        window["addEventListener"](_0x84fe1d(0x349), (_0xa83a2d) => {
+            const _0x3f13fd = _0x84fe1d;
+            appState["mousePos"] = {
+                x: _0xa83a2d[_0x3f13fd(0x2a1)],
+                y: _0xa83a2d[_0x3f13fd(0x202)],
+            };
+        });
+        const appState = new Object(),
+            EXPLORE_CARD = {
+                MAP_ASPECT: 1.477,
+                ORIGINAL_WIDTH: 0x3c0,
+                LEGEND_OFFSET: 0xff,
+                OFF_CHART_COORS: [
+                    [-0x5e, 0x1c],
+                    [-93.5, 0x1c],
+                    [-0x5d, 0x1c],
+                    [-92.5, 0x1c],
+                    [-0x5c, 0x1c],
+                    [-91.5, 0x1c],
+                    [-0x5b, 0x1c],
+                    [-90.5, 0x1c],
+                    [-0x5a, 0x1c],
+                    [-89.5, 0x1c],
+                    [-0x59, 0x1c],
+                    [-88.5, 0x1c],
+                    [-0x58, 0x1c],
+                    [-87.5, 0x1c],
+                    [-0x57, 0x1c],
+                    [-86.5, 0x1c],
+                    [-0x56, 0x1c],
+                    [-85.5, 0x1c],
+                    [-0x55, 0x1c],
+                    [-84.5, 0x1c],
+                    [-0x5e, 27.5],
+                    [-93.5, 27.5],
+                    [-0x5d, 27.5],
+                    [-92.5, 27.5],
+                    [-0x5c, 27.5],
+                    [-91.5, 27.5],
+                    [-0x5b, 27.5],
+                    [-90.5, 27.5],
+                    [-0x5a, 27.5],
+                    [-89.5, 27.5],
+                    [-0x59, 27.5],
+                    [-88.5, 27.5],
+                    [-0x58, 27.5],
+                    [-87.5, 27.5],
+                    [-0x57, 27.5],
+                    [-86.5, 27.5],
+                    [-0x56, 27.5],
+                    [-85.5, 27.5],
+                    [-0x55, 27.5],
+                    [-84.5, 27.5],
+                    [-0x5e, 0x1b],
+                    [-93.5, 0x1b],
+                    [-0x5d, 0x1b],
+                    [-92.5, 0x1b],
+                    [-0x5c, 0x1b],
+                    [-91.5, 0x1b],
+                    [-0x5b, 0x1b],
+                    [-90.5, 0x1b],
+                    [-0x5a, 0x1b],
+                    [-89.5, 0x1b],
+                    [-0x59, 0x1b],
+                    [-88.5, 0x1b],
+                    [-0x58, 0x1b],
+                    [-87.5, 0x1b],
+                    [-0x57, 0x1b],
+                    [-86.5, 0x1b],
+                    [-0x56, 0x1b],
+                    [-85.5, 0x1b],
+                    [-0x55, 0x1b],
+                    [-84.5, 0x1b],
+                ],
+            },
+            SUMMARY_CARD = {
+                HEAT_MAP_ASPECT: 0x1,
+                DONUT_CHART_ASPECT: 0x1,
+                TREEMAP_ASPECT: 2.8,
+            },
+            DEGREE_ENCODING = {
+                0x0: "None",
+                0x1: _0x84fe1d(0x2c4),
+                0x2: _0x84fe1d(0x252),
+                0x3: _0x84fe1d(0x2e7),
+                0x4: _0x84fe1d(0x325),
+            },
+            RANKED_LOCALE = [
+                _0x84fe1d(0x265),
+                "Remote\x20Rural",
+                _0x84fe1d(0x285),
+                "Distant\x20Town",
+                _0x84fe1d(0x31f),
+                "Fringe\x20Town",
+                _0x84fe1d(0x33d),
+                "Mid-size\x20Suburb",
+                "Large\x20Suburb",
+                "Small\x20City",
+                _0x84fe1d(0x340),
+                _0x84fe1d(0x2a0),
+            ],
+            BOX_PLOT = {
+                ASPECT: 0x5,
+                PLOT_RATIO: 0.75
+            },
+            HISTOGRAM = {
+                ASPECT: 0x3,
+                PLOT_RATIO: 0.75
+            },
+            BUTTON_NEXT_VALUES_MEDIAN_DEBT = {
+                overall: _0x84fe1d(0x30f),
+                graduation: _0x84fe1d(0x26e),
+                withdrawal: _0x84fe1d(0x267),
+            },
+            BUTTON_NEXT_VALUES_FAMILY_INCOME = {
+                average: "median",
+                median: _0x84fe1d(0x260),
+            },
+            BUTTON_NEXT_VALUES_EARNINGS_8_YEARS = {
+                mean: _0x84fe1d(0x220),
+                median: "mean",
+            },
+            COLLEGE_LIST_DROPDOWN_OPTIONS = {
+                none: "None",
+                name: _0x84fe1d(0x264),
+                admissionRate: _0x84fe1d(0x25a),
+                actMedian: "ACT\x20Median",
+                satAverage: _0x84fe1d(0x310),
+                undergradPopulation: _0x84fe1d(0x275),
+                nonresidentAliensRate: _0x84fe1d(0x2f2),
+                partTimeUndergradsRate: "Part-time\x20Undergrads\x20%",
+                averageCost: _0x84fe1d(0x20f),
+                expenditurePerStudent: _0x84fe1d(0x21d),
+                averageFacultySalary: "Average\x20Faculty\x20Salary",
+                undergradsWithPellGrantRate: "Undergrads\x20with\x20Pell\x20Grant\x20%",
+                pellGrantRecipientsRate: _0x84fe1d(0x314),
+                federalLoansRate: _0x84fe1d(0x2bb),
+                medianDebt: _0x84fe1d(0x2a3),
+                medianDebtOnGraduation: _0x84fe1d(0x331),
+                medianDebtOnWithdrawal: _0x84fe1d(0x321),
+                averageFamilyIncome: "Average\x20Family\x20Income",
+                medianFamilyIncome: _0x84fe1d(0x2e8),
+                povertyRate: "Poverty\x20Rate\x20%",
+                employment8YearsAfterEntryRate: _0x84fe1d(0x289),
+                meanEarnings8YearsAfterEntry: _0x84fe1d(0x348),
+                medianEarnings8YearsAfterEntry: "Median\x20Earnings\x20After\x208\x20Years",
+                completion150TimeRate: _0x84fe1d(0x281),
+                retentionRate: _0x84fe1d(0x1fe),
+                undergrads25YORate: "Undergrads\x2025+\x20y.o.\x20%",
+                year3DefaultRate: _0x84fe1d(0x324),
+                averageAgeOfEntry: _0x84fe1d(0x296),
+            };
+
+        function debounce(_0x50bd5f, _0x3b16dd) {
+            let _0x133069;
+            return function (..._0x2b63d9) {
+                const _0x560da1 = this;
+                clearTimeout(_0x133069),
+                    (_0x133069 = setTimeout(() => {
+                        const _0x505810 = _0xda1b;
+                        _0x50bd5f[_0x505810(0x23a)](_0x560da1, _0x2b63d9);
+                    }, _0x3b16dd));
+            };
+        }
+
+        function deepcopy(_0x1d1941) {
+            const _0x1b1e49 = _0x84fe1d;
+            if (_0x1d1941 === null || typeof _0x1d1941 !== _0x1b1e49(0x201))
+                return _0x1d1941;
+            if (Array[_0x1b1e49(0x22c)](_0x1d1941))
+                return _0x1d1941[_0x1b1e49(0x2ba)](deepcopy);
+            const _0xc2f713 = {};
+            for (const _0x29a5b5 in _0x1d1941) {
+                _0xc2f713[_0x29a5b5] = deepcopy(_0x1d1941[_0x29a5b5]);
+            }
+            return _0xc2f713;
+        }
+        async function getDataAsync() {
+            const _0x26789a = _0x84fe1d,
+                _0x53e8e6 = await d3[_0x26789a(0x30b)](
+                    "https://raw.githubusercontent.com/fuyuGT/CS7450-data/main/colleges.csv",
+                    (_0x456dc5) => ({
+                        name: _0x456dc5[_0x26789a(0x264)],
+                        predominantDegree: _0x456dc5[_0x26789a(0x266)],
+                        highestDegree: _0x456dc5["Highest\x20Degree"],
+                        control: _0x456dc5[_0x26789a(0x2dc)],
+                        region: _0x456dc5[_0x26789a(0x2eb)],
+                        locale: _0x456dc5[_0x26789a(0x29f)],
+                        admissionRate: +_0x456dc5["Admission\x20Rate"],
+                        actMedian: +_0x456dc5[_0x26789a(0x2b4)],
+                        satAverage: +_0x456dc5[_0x26789a(0x310)],
+                        undergradPopulation: +_0x456dc5[_0x26789a(0x275)],
+                        nonresidentAliensRate: +_0x456dc5[_0x26789a(0x30c)],
+                        partTimeUndergradsRate: +_0x456dc5["%\x20Part-time\x20Undergrads"],
+                        averageCost: +_0x456dc5["Average\x20Cost"],
+                        expenditurePerStudent: +_0x456dc5[_0x26789a(0x21d)],
+                        averageFacultySalary: +_0x456dc5[_0x26789a(0x24f)],
+                        undergradsWithPellGrantRate: +_0x456dc5[_0x26789a(0x1fb)],
+                        pellGrantRecipientsRate: +_0x456dc5[_0x26789a(0x2e3)],
+                        federalLoansRate: +_0x456dc5[_0x26789a(0x2ef)],
+                        medianDebt: +_0x456dc5[_0x26789a(0x294)],
+                        medianDebtOnGraduation: +_0x456dc5[_0x26789a(0x27a)],
+                        medianDebtOnWithdrawal: +_0x456dc5[_0x26789a(0x251)],
+                        averageFamilyIncome: +_0x456dc5["Average\x20Family\x20Income"],
+                        medianFamilyIncome: +_0x456dc5["Median\x20Family\x20Income"],
+                        povertyRate: +_0x456dc5[_0x26789a(0x307)] / 0x64,
+                        employment8YearsAfterEntryRate: (+_0x456dc5[
+                                    "Number\x20of\x20Employed\x208\x20years\x20after\x20entry"
+                                ] *
+                                0x1) /
+                            (+_0x456dc5[_0x26789a(0x316)] + +_0x456dc5[_0x26789a(0x293)]),
+                        meanEarnings8YearsAfterEntry: +_0x456dc5[_0x26789a(0x271)],
+                        medianEarnings8YearsAfterEntry: +_0x456dc5[_0x26789a(0x332)],
+                        completion150TimeRate: +_0x456dc5[_0x26789a(0x2ca)],
+                        retentionRate: +_0x456dc5[_0x26789a(0x318)],
+                        undergrads25YORate: +_0x456dc5[_0x26789a(0x1f6)],
+                        year3DefaultRate: +_0x456dc5[_0x26789a(0x276)] / 0x64,
+                        averageAgeOfEntry: +_0x456dc5[_0x26789a(0x296)],
+                    })
+                ),
+                _0xe70d1f = await d3[_0x26789a(0x30b)](
+                    _0x26789a(0x22a),
+                    (_0x438835, _0x30a5ae) => ({
+                        name: _0x438835[_0x26789a(0x264)],
+                        coordinates: [
+                            convertGeoCoors(_0x438835["Longitude"]),
+                            convertGeoCoors(_0x438835[_0x26789a(0x31e)]),
+                        ],
+                    })
+                ),
+                _0xf9c11 = await d3[_0x26789a(0x2c2)](_0x26789a(0x2b9)),
+                _0xe5434d = await d3[_0x26789a(0x2c2)](_0x26789a(0x274));
+            return combineData(_0x53e8e6, _0xe70d1f, _0xf9c11, _0xe5434d);
+        }
+
+        function combineData(_0x38b290, _0x5118cf, _0x4f1340, _0x2506f3) {
+            const _0xeb51 = _0x84fe1d,
+                _0x2bd0b4 = {
+                    predominantDegreeValues: getUniqueValues(_0x38b290, _0xeb51(0x320))[
+                        _0xeb51(0x2de)
+                    ](),
+                    highestDegreeValues: getUniqueValues(_0x38b290, _0xeb51(0x20b))[
+                        _0xeb51(0x2de)
+                    ](),
+                    controlValues: getUniqueValues(_0x38b290, "control"),
+                    regionValues: getUniqueValues(_0x38b290, _0xeb51(0x30e)),
+                    localeValues: getUniqueValues(_0x38b290, _0xeb51(0x26c)),
+                };
+            return [
+                _0x38b290["map"]((_0x405046) => {
+                    const _0x5ebf48 = _0xeb51,
+                        _0x121871 = _0x5118cf[_0x5ebf48(0x200)](
+                            (_0x206574) =>
+                            _0x206574[_0x5ebf48(0x25f)] == _0x405046[_0x5ebf48(0x25f)]
+                        );
+                    return {
+                        ..._0x405046,
+                        ..._0x121871
+                    };
+                }),
+                _0x4f1340,
+                _0x2506f3,
+                _0x2bd0b4,
+            ];
+        }
+
+        function convertGeoCoors(_0x1922ca) {
+            const _0x4bb2d7 = _0x84fe1d,
+                _0x400dbf = parseFloat(
+                    _0x1922ca[_0x4bb2d7(0x2cc)](0x0, _0x1922ca["indexOf"]("°"))
+                );
+            return _0x1922ca["indexOf"]("N") !== -0x1 ||
+                _0x1922ca[_0x4bb2d7(0x282)]("E") !== -0x1 ?
+                _0x400dbf :
+                -_0x400dbf;
+        }
+
+        function getUniqueValues(_0x42c426, _0xba2bf7) {
+            const _0x1c07e5 = _0x84fe1d;
+            return _0x42c426[_0x1c07e5(0x2ba)]((_0x22a9d1) => _0x22a9d1[_0xba2bf7])[
+                _0x1c07e5(0x225)
+            ](
+                (_0x3db321, _0x176c33, _0x3b1105) =>
+                _0x3b1105[_0x1c07e5(0x282)](_0x3db321) === _0x176c33
+            );
+        }
+
+        function getDegreeData(_0x75b26e) {
+            const _0x2aa13d = _0x84fe1d,
+                _0x268478 = appState["CONFIGURE_CARD_DATA"][_0x2aa13d(0x339)],
+                _0x442b11 = appState["CONFIGURE_CARD_DATA"][_0x2aa13d(0x21e)],
+                _0x193add = new Array();
+            _0x268478[_0x2aa13d(0x329)]((_0x440339) => {
+                    const _0x5b18ab = _0x2aa13d;
+                    _0x442b11[_0x5b18ab(0x329)]((_0x33360e) => {
+                        _0x193add["push"]({
+                            predominantDegree: _0x440339,
+                            highestDegree: _0x33360e,
+                            value: 0x0,
+                        });
+                    });
+                }),
+                _0x75b26e[_0x2aa13d(0x329)]((_0x49e841) => {
+                    const _0x825829 = _0x2aa13d;
+                    _0x193add[_0x825829(0x200)](
+                        (_0x5734bf) =>
+                        _0x5734bf[_0x825829(0x320)] === _0x49e841["predominantDegree"] &&
+                        _0x5734bf["highestDegree"] === _0x49e841[_0x825829(0x20b)]
+                    )["value"] += 0x1;
+                });
+            const _0x293de8 = _0x193add["map"]((_0x3fd30f) => {
+                const _0x5cadcb = _0x2aa13d;
+                return {
+                    ..._0x3fd30f,
+                    percentage: _0x3fd30f["value"] /
+                        Math[_0x5cadcb(0x2c9)](0x1, _0x75b26e[_0x5cadcb(0x2f6)]),
+                };
+            });
+            return _0x293de8;
+        }
+
+        function _0xda1b(_0x5d31af, _0x15d7fa) {
+            const _0x32faca = _0x32fa();
+            return (
+                (_0xda1b = function (_0xda1bde, _0x427c03) {
+                    _0xda1bde = _0xda1bde - 0x1e9;
+                    let _0x45713d = _0x32faca[_0xda1bde];
+                    return _0x45713d;
+                }),
+                _0xda1b(_0x5d31af, _0x15d7fa)
+            );
+        }
+
+        function getCompositionDonutChartData() {
+            const _0x558605 = _0x84fe1d,
+                _0x2c403e = [_0x558605(0x2a9), _0x558605(0x30e), _0x558605(0x26c)],
+                _0x1d8899 = _0x2c403e[_0x558605(0x2ba)]((_0x1f8b1a) =>
+                    appState[_0x558605(0x208)][_0x1f8b1a + "Values"][_0x558605(0x1e9)](
+                        (_0x2a89e0, _0x52f933) =>
+                        Object["assign"](_0x2a89e0, {
+                            [_0x52f933]: appState[_0x558605(0x22d)][_0x558605(0x225)](
+                                (_0x55e1e3) => _0x55e1e3[_0x1f8b1a] === _0x52f933
+                            )[_0x558605(0x2f6)],
+                        }), {}
+                    )
+                ),
+                _0x4d229b = new Object();
+            return (
+                _0x2c403e["forEach"]((_0x164cf1, _0x3d6c15) => {
+                    _0x4d229b[_0x164cf1] = _0x1d8899[_0x3d6c15];
+                }),
+                _0x4d229b
+            );
+        }
+
+        function _0x32fa() {
+            const _0x175b4d = [
+                "max",
+                "Completion\x20Rate\x20150%\x20time",
+                "</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20scope=\x22row\x22>Q3</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>",
+                "substring",
+                "split",
+                "scalePow",
+                "btn-secondary",
+                "povertyRate",
+                "join",
+                ".earnings-8-years-group",
+                "#finance-card-svg-1",
+                "geoAlbersUsa",
+                ".summary-card-heat-map-tiles",
+                "medianEarnings8YearsAfterEntry",
+                "class",
+                "domain",
+                "bandwidth",
+                ".explore-card-state",
+                "scaleOrdinal",
+                "Control",
+                "\x20<br/>\x20B\x20or\x20H:\x20",
+                "sort",
+                "sum",
+                "text",
+                "12482960MlyBsa",
+                "partTimeUndergradsRate",
+                "%\x20Pell\x20Grant\x20Recipients",
+                "select",
+                "explore-card-button-group",
+                "from",
+                "Master\x27s",
+                "Median\x20Family\x20Income",
+                "svg",
+                "9770kfWWac",
+                "Region",
+                "#configure-card-case-sensitive-switch",
+                "translate(0,",
+                "button",
+                "%\x20Federal\x20Loans",
+                "pellGrantRecipientsRate",
+                "averageCost",
+                "Nonresident\x20Aliens\x20%",
+                "#finance-card-svg-2",
+                "explore-card-county",
+                "484UsQZjr",
+                "length",
+                "#finance-card-svg-6",
+                "axisLeft",
+                "year3DefaultRate",
+                "target",
+                "text-anchor",
+                "#finance-card-svg-4",
+                "<br>Locale:\x20",
+                "innerRadius",
+                "satAverage",
+                "employment8YearsAfterEntryRate",
+                "EDUCATION_DATA",
+                "#configure-card-text-search",
+                "state",
+                "thresholds",
+                "medianFamilyIncome",
+                ".family-income-group",
+                "Poverty\x20Rate",
+                "root",
+                "#summary-card-composition-svg-3",
+                "SCHOOL_DATA",
+                "csv",
+                "%\x20Nonresident\x20Aliens",
+                "#summary-card-degree-svg",
+                "region",
+                "graduation",
+                "SAT\x20Average",
+                "<br/>Count:\x20",
+                "#demogr-card-svg-9",
+                "schemeCategory10",
+                "Pell\x20Grant\x20Recipients\x20%",
+                "#demogr-card-svg-1",
+                "Number\x20of\x20Unemployed\x208\x20years\x20after\x20entry",
+                "circle",
+                "Retention\x20Rate\x20(First\x20Time\x20Students)",
+                "fill",
+                "tileDegrees",
+                "getBoundingClientRect",
+                "exploreCardShowCounties",
+                "OFF_CHART_COORS",
+                "Latitude",
+                "Remote\x20Town",
+                "predominantDegree",
+                "Median\x20Debt\x20Withdrawal",
+                "averageFacultySalary",
+                "outerRadius",
+                "3\x20Year\x20Default\x20%",
+                "Doctoral",
+                "<br/>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Count:\x20",
+                ".demogr-card-histo-display-rect",
+                "checked",
+                "forEach",
+                "percentage",
+                "arc",
+                "area_name",
+                "append",
+                "#finance-card-svg-3",
+                "summary-card-heat-map-text",
+                "#demogr-card-svg-3",
+                "Median\x20Debt\x20Graduation",
+                "Median\x20Earnings\x208\x20years\x20After\x20Entry",
+                "\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<table\x20class=\x22table\x20table-sm\x22>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tbody>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20scope=\x22row\x22>Min</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>",
+                "features",
+                "translate",
+                "treemap",
+                "data",
+                "path",
+                "predominantDegreeValues",
+                "exploreCardFigureData",
+                "search-text",
+                ".summary-card-treemap-node",
+                "Small\x20Suburb",
+                "type",
+                "configure-card-highest-degree-options",
+                "Mid-size\x20City",
+                "Counties",
+                "HEAT_MAP_ASPECT",
+                "scale",
+                "Zoom\x20Out",
+                "width",
+                "Values",
+                "DONUT_CHART_ASPECT",
+                "Mean\x20Earnings\x20After\x208\x20Years",
+                "mousemove",
+                "reduce",
+                "btn-outline-primary",
+                "#summary-card-count",
+                "height",
+                "attr",
+                "#summary-card-container",
+                "retentionRate",
+                "scaleSqrt",
+                ".median-debt-group",
+                "font-size",
+                "schemeBlues",
+                "#summary-card-composition-svg-4",
+                "box-plot-line",
+                "%\x20Undergrads\x2025+\x20y.o.",
+                "opacity",
+                "mouseout",
+                "explore-card-legend-rect",
+                "\x20County",
+                "%\x20Undergrads\x20with\x20Pell\x20Grant",
+                "box-plot-rect",
+                "geoPath",
+                "Retention\x20%",
+                "604628akNVSx",
+                "find",
+                "object",
+                "clientY",
+                "padding",
+                "#demogr-card-svg-7",
+                "</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20scope=\x22row\x22>Q1</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>",
+                "scrollX",
+                "Predominant",
+                "CONFIGURE_CARD_DATA",
+                "transition",
+                "btn-primary",
+                "highestDegree",
+                "remove",
+                "btn\x20btn-sm\x20btn-secondary\x20configure-card-group-btn",
+                ".summary-card-composition-arc-",
+                "Average\x20Cost",
+                "%\x20adults\x20age\x2025\x20and\x20older\x20with\x20a\x20bachelor\x27s",
+                "12639IOoAxQ",
+                "scaleBand",
+                "size",
+                ".configure-card-group-btn",
+                "#finance-card-svg-14",
+                "btn-group\x20btn-group-sm",
+                "box-plot-text",
+                "localeValues",
+                "medianDebtOnGraduation",
+                "scrollY",
+                "controlValues",
+                "bachelorsOrHigher",
+                "Expenditure\x20Per\x20Student",
+                "highestDegreeValues",
+                "#finance-card-svg-10",
+                "median",
+                "summary-card-composition-arc-",
+                "node",
+                "mousePos",
+                "counties",
+                "filter",
+                "original-opacity",
+                "exploreCardShowSchools",
+                ".domain",
+                "left",
+                "https://raw.githubusercontent.com/PhillipFeiDing/us-colleges-coordinates/master/colleges_coordinates.csv",
+                "endAngle",
+                "isArray",
+                "exploreCardFilteredSchools",
+                "format",
+                "middle",
+                "call",
+                "#finance-card-svg-9",
+                "fill-opacity",
+                "#demogr-card-svg-6",
+                "lastIndexOf",
+                "1164qQwVWs",
+                "mouseover",
+                "demogr-card-histo-display-rect",
+                "min",
+                "15px",
+                "apply",
+                "<br>Region:\x20",
+                "scalePoint",
+                "demogr-card-histo-button-rect",
+                "axisBottom",
+                "#demogr-card-svg-2",
+                "30753clVtqk",
+                "input",
+                "configure-card-control-options",
+                "rect",
+                "push",
+                "tickFormat",
+                "pie",
+                "querySelectorAll",
+                "#summary-card-composition-tree-button",
+                "stroke-width",
+                ".explore-card-county",
+                "children",
+                "summaryCardFigureData",
+                "right",
+                "data-education",
+                "Average\x20Faculty\x20Salary",
+                ".explore-card-legend",
+                "Median\x20Debt\x20on\x20Withdrawal",
+                "Bachelor\x27s",
+                "translate(",
+                "#finance-card-svg-11",
+                "states",
+                "#finance-card-svg-13",
+                "PLOT_RATIO",
+                ".demogr-card-histo-button-rect",
+                "regionValues",
+                "Admission\x20Rate\x20%",
+                "stratify",
+                "classed",
+                "click",
+                "scaleLinear",
+                "name",
+                "average",
+                "tooltip",
+                "transform",
+                "schemeDark2",
+                "Name",
+                "Distant\x20Rural",
+                "Predominant\x20Degree",
+                "overall",
+                "TREEMAP_ASPECT",
+                "fips",
+                "round",
+                "\x20-\x20",
+                "locale",
+                "LEGEND_OFFSET",
+                "withdrawal",
+                "html",
+                "toLowerCase",
+                "Mean\x20Earnings\x208\x20years\x20After\x20Entry",
+                "style",
+                ".hidden-when-no-school",
+                "https://raw.githubusercontent.com/no-stack-dub-sack/testable-projects-fcc/master/src/data/choropleth_map/for_user_education.json",
+                "Undergrad\x20Population",
+                "3\x20Year\x20Default\x20Rate",
+                "admissionRate",
+                "explore-card-legend-title",
+                "explore-card-legend",
+                "Median\x20Debt\x20on\x20Graduation",
+                "summary-card-treemap-node",
+                "querySelector",
+                "btn\x20btn-light",
+                "bottom",
+                "shape-no-display",
+                "selectAll",
+                "Completion\x20in\x20150%\x20time\x20%",
+                "indexOf",
+                "meanEarnings8YearsAfterEntry",
+                "rgb",
+                "Fringe\x20Rural",
+                "ASPECT",
+                "enter",
+                "configureCardSearchText",
+                "Employment\x20After\x208\x20Years\x20%",
+                "line",
+                "quantile",
+                "splice",
+                "configureCardSelected",
+                "#summary-card-composition-donut-group",
+                "translateExtent",
+                "duration",
+                "toFixed",
+                "top",
+                "Number\x20of\x20Employed\x208\x20years\x20after\x20entry",
+                "Median\x20Debt",
+                "#explore-card-svg",
+                "Average\x20Age\x20of\x20Entry",
+                "<br/>Highest:\x20",
+                "#demogr-card-svg-11",
+                "background",
+                "value",
+                "explore-card-state",
+                "12895mZwVtr",
+                "startAngle",
+                "#lower-cards-container",
+                "Locale",
+                "Large\x20City",
+                "clientX",
+                "each",
+                "Median\x20Debt\x20Overall",
+                "configure-card-locale-options",
+                "btn-outline-secondary",
+                "expenditurePerStudent",
+                "3288432HuQzMP",
+                "rotate(-90)",
+                "control",
+                "#demogr-card-svg-4",
+                "title",
+                "<br>Count:\x20",
+                "</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tbody>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</table>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20",
+                "Control:\x20",
+                "#finance-card-svg-12",
+                "tickSize",
+                "feature",
+                "#finance-card-svg-5",
+                ",\x200)",
+                "ACT\x20Median",
+                "parentId",
+                "change",
+                "objects",
+                "zoom",
+                "https://raw.githubusercontent.com/PhillipFeiDing/us-colleges-coordinates/master/counties_states.json",
+                "map",
+                "Federal\x20Loans\x20%",
+                "explore-card-legend-text",
+                "#summary-card-composition-donut-button",
+                "#summary-card-composition-svg-2",
+                "#demogr-card-svg-10",
+                "actMedian",
+                "MAP_ASPECT",
+                "json",
+                "data-fips",
+                "Associate",
+                "configureCardCaseSwitch",
+                "544452HurAzf",
+                "medianDebtOnWithdrawal",
+                "range",
+            ];
+            _0x32fa = function () {
+                return _0x175b4d;
+            };
+            return _0x32fa();
+        }
+
+        function getCompositionTreemapData() {
+            const _0x15fc43 = _0x84fe1d;
+            class _0x23499d {
+                constructor(_0x582c50) {
+                    const _0x4ac126 = _0xda1b;
+                    (this[_0x4ac126(0x25f)] = _0x582c50),
+                    (this["value"] = 0x0),
+                    (this[_0x4ac126(0x24b)] = new Array());
+                }
+            }
+
+            function _0x4d00be(_0x3db2a2, _0xe9d46d, _0x2cd10a) {
+                const _0x4e47d8 = _0xda1b;
+                _0x2cd10a["push"]({
+                        id: _0xe9d46d,
+                        value: _0x3db2a2[_0x4e47d8(0x29a)]
+                    }),
+                    _0x3db2a2[_0x4e47d8(0x24b)][_0x4e47d8(0x329)]((_0x48f9cb) => {
+                        const _0xa955bc = _0x4e47d8;
+                        _0x4d00be(
+                            _0x48f9cb,
+                            _0xe9d46d + "." + _0x48f9cb[_0xa955bc(0x25f)],
+                            _0x2cd10a
+                        );
+                    });
+            }
+            const _0x340774 = new _0x23499d(_0x15fc43(0x308));
+            appState[_0x15fc43(0x22d)]["forEach"]((_0x45ac5c) => {
+                const _0x1caa5c = _0x15fc43,
+                    {
+                        control: _0x3dd4ad,
+                        region: _0x187407,
+                        locale: _0x39f210
+                    } = _0x45ac5c;
+                _0x340774["children"]["find"](
+                        (_0x13e2e5) => _0x13e2e5[_0x1caa5c(0x25f)] === _0x3dd4ad
+                    ) == null && _0x340774["children"]["push"](new _0x23499d(_0x3dd4ad)),
+                    (level1 = _0x340774["children"][_0x1caa5c(0x200)](
+                        (_0x5a2975) => _0x5a2975[_0x1caa5c(0x25f)] === _0x3dd4ad
+                    )),
+                    level1[_0x1caa5c(0x24b)][_0x1caa5c(0x200)](
+                        (_0x40de24) => _0x40de24[_0x1caa5c(0x25f)] === _0x187407
+                    ) == null &&
+                    level1[_0x1caa5c(0x24b)][_0x1caa5c(0x244)](new _0x23499d(_0x187407)),
+                    (level2 = level1[_0x1caa5c(0x24b)]["find"](
+                        (_0x9c8453) => _0x9c8453[_0x1caa5c(0x25f)] === _0x187407
+                    )),
+                    level2[_0x1caa5c(0x24b)][_0x1caa5c(0x200)](
+                        (_0x54e9a1) => _0x54e9a1[_0x1caa5c(0x25f)] === _0x39f210
+                    ) == null &&
+                    level2[_0x1caa5c(0x24b)][_0x1caa5c(0x244)](new _0x23499d(_0x39f210)),
+                    (level3 = level2[_0x1caa5c(0x24b)][_0x1caa5c(0x200)](
+                        (_0x22f3d7) => _0x22f3d7[_0x1caa5c(0x25f)] === _0x39f210
+                    )),
+                    (level3["value"] += 0x1);
+            });
+            const _0x4da598 = new Array();
+            return (
+                _0x4d00be(_0x340774, _0x340774[_0x15fc43(0x25f)], _0x4da598), _0x4da598
+            );
+        }
+
+        function getBoxPlotSummaryData(_0x16428a) {
+            const _0x480ce1 = _0x84fe1d;
+            return [
+                d3["quantile"](_0x16428a, 0x0),
+                d3[_0x480ce1(0x28b)](_0x16428a, 0.25),
+                d3["quantile"](_0x16428a, 0.5),
+                d3["quantile"](_0x16428a, 0.75),
+                d3[_0x480ce1(0x28b)](_0x16428a, 0x1),
+            ];
+        }
+
+        function updateGlobalCharts() {
+            updateExploreCard(), updateSummaryCard(), updateLowerCards();
+        }
+        const debouncedUpdateGlobalCharts = debounce(updateGlobalCharts, 0x64);
+
+        function applyConfigureCardFilterCriteria(_0x472855) {
+            const _0x1b5fa0 = _0x84fe1d,
+                _0x1a4825 = appState[_0x1b5fa0(0x2c5)] ?
+                _0x472855["name"] :
+                _0x472855[_0x1b5fa0(0x25f)][_0x1b5fa0(0x270)](),
+                _0x329bd6 = appState["configureCardCaseSwitch"] ?
+                appState[_0x1b5fa0(0x288)] :
+                appState[_0x1b5fa0(0x288)][_0x1b5fa0(0x270)]();
+            return (
+                _0x1a4825[_0x1b5fa0(0x282)](_0x329bd6) !== -0x1 &&
+                appState[_0x1b5fa0(0x28d)][_0x1b5fa0(0x339)][_0x1b5fa0(0x282)](
+                    _0x472855["predominantDegree"]
+                ) !== -0x1 &&
+                appState[_0x1b5fa0(0x28d)]["highestDegreeValues"][_0x1b5fa0(0x282)](
+                    _0x472855["highestDegree"]
+                ) !== -0x1 &&
+                appState[_0x1b5fa0(0x28d)]["controlValues"]["indexOf"](
+                    _0x472855["control"]
+                ) !== -0x1 &&
+                appState[_0x1b5fa0(0x28d)][_0x1b5fa0(0x259)][_0x1b5fa0(0x282)](
+                    _0x472855["region"]
+                ) !== -0x1 &&
+                appState["configureCardSelected"]["localeValues"][_0x1b5fa0(0x282)](
+                    _0x472855[_0x1b5fa0(0x26c)]
+                ) !== -0x1
+            );
+        }
+
+        function makeBoxPlot(_0x235517, _0xcd784b, _0x32faa7, _0x338464) {
+            const _0x5849d7 = _0x84fe1d,
+                _0x3f9394 = d3[_0x5849d7(0x2e4)](_0x235517),
+                _0x3e6f9d =
+                Math[_0x5849d7(0x26a)](
+                    _0x3f9394[_0x5849d7(0x222)]()["getBoundingClientRect"]()[
+                        _0x5849d7(0x345)
+                    ]
+                ) - 0x1,
+                _0x8c9946 = Math["round"](_0x3e6f9d / BOX_PLOT["ASPECT"]);
+            _0x3f9394[_0x5849d7(0x2e4)](_0x5849d7(0x2e9))[_0x5849d7(0x20c)]();
+            const _0x863d3a = _0x3f9394["append"](_0x5849d7(0x2e9))["attr"](_0x5849d7(0x345), _0x3e6f9d)[_0x5849d7(
+                0x1ed)](_0x5849d7(0x1ec), _0x8c9946)[_0x5849d7(0x32d)]("g");
+            if (_0xcd784b[_0x5849d7(0x2f6)] === 0x0) return;
+            const _0x4ebe51 = appState[_0x5849d7(0x261)],
+                _0x2afefe = Math["pow"](0xa, _0x32faa7),
+                [_0x2d0cb7, _0x4b5f21, _0x24552b, _0x4bcb31, _0x4e6469] =
+                getBoxPlotSummaryData(_0xcd784b)[_0x5849d7(0x2ba)](
+                    (_0x4982ca) => Math["round"](_0x4982ca * _0x2afefe) / _0x2afefe
+                ),
+                _0x3a90da = 0xf,
+                _0x537b = d3["scaleLinear"]()[_0x5849d7(0x2d8)](_0x338464)[_0x5849d7(0x2c8)]([_0x3a90da, _0x3e6f9d -
+                    _0x3a90da
+                ]),
+                _0x368189 = _0x537b(_0x4b5f21),
+                _0x58b9ae = _0x537b(_0x4bcb31) - _0x368189;
+            _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x243))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x1fc))["attr"]("x",
+                    _0x368189)["attr"]("y", 0x1)[_0x5849d7(0x1ed)]("width", _0x58b9ae)[_0x5849d7(0x1ed)]("height",
+                    _0x8c9946 * BOX_PLOT[_0x5849d7(0x257)]),
+                _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x28a))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x1f5))[_0x5849d7(
+                    0x1ed)]("x1", _0x537b(_0x24552b))["attr"]("y1", 0x1)[_0x5849d7(0x1ed)]("x2", _0x537b(_0x24552b))[
+                    _0x5849d7(0x1ed)]("y2", _0x8c9946 * BOX_PLOT[_0x5849d7(0x257)] + 0x1),
+                _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x28a))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x1f5))[_0x5849d7(
+                    0x1ed)]("x1", _0x537b(_0x2d0cb7))[_0x5849d7(0x1ed)]("y1", 0x1)[_0x5849d7(0x1ed)]("x2", _0x537b(
+                    _0x2d0cb7))[_0x5849d7(0x1ed)]("y2", _0x8c9946 * BOX_PLOT[_0x5849d7(0x257)] + 0x1),
+                _0x863d3a["append"](_0x5849d7(0x28a))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x1f5))[_0x5849d7(0x1ed)](
+                    "x1", _0x537b(_0x2d0cb7))[_0x5849d7(0x1ed)](
+                    "y1",
+                    (_0x8c9946 * BOX_PLOT[_0x5849d7(0x257)]) / 0x2 + 0x1
+                )[_0x5849d7(0x1ed)]("x2", _0x368189)["attr"]("y2", (_0x8c9946 * BOX_PLOT[_0x5849d7(0x257)]) / 0x2 +
+                0x1),
+                _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x28a))[_0x5849d7(0x1ed)]("class", _0x5849d7(0x1f5))[_0x5849d7(
+                    0x1ed)]("x1", _0x537b(_0x4e6469))["attr"]("y1", 0x1)[_0x5849d7(0x1ed)]("x2", _0x537b(_0x4e6469))[
+                    "attr"]("y2", _0x8c9946 * BOX_PLOT[_0x5849d7(0x257)] + 0x1),
+                _0x863d3a["append"](_0x5849d7(0x28a))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x1f5))[_0x5849d7(0x1ed)](
+                    "x1", _0x537b(_0x4bcb31))[_0x5849d7(0x1ed)](
+                    "y1",
+                    (_0x8c9946 * BOX_PLOT[_0x5849d7(0x257)]) / 0x2 + 0x1
+                )[_0x5849d7(0x1ed)]("x2", _0x537b(_0x4e6469))[_0x5849d7(0x1ed)](
+                    "y2",
+                    (_0x8c9946 * BOX_PLOT[_0x5849d7(0x257)]) / 0x2 + 0x1
+                );
+            const _0x3ac403 = _0x537b(_0x2d0cb7);
+            _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x2e0))[_0x5849d7(0x1ed)](_0x5849d7(0x2d7), _0x5849d7(0x217))[
+                _0x5849d7(0x2e0)](_0x2d0cb7)[_0x5849d7(0x1ed)]("x", _0x3ac403)["attr"]("y", _0x8c9946 - 0x1);
+            const _0xe908c7 = _0x537b(_0x4e6469);
+            if (_0x3ac403 < _0xe908c7 - _0x3a90da * 0x2) {
+                _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x2e0))["attr"](_0x5849d7(0x2d7), _0x5849d7(0x217))[_0x5849d7(
+                    0x2e0)](_0x4e6469)[_0x5849d7(0x1ed)]("x", _0xe908c7)["attr"]("y", _0x8c9946 - 0x1);
+                const _0x545977 = _0x537b(_0x24552b);
+                _0x545977 - _0x3a90da * 0x2 > _0x3ac403 &&
+                    _0x545977 + _0x3a90da * 0x2 < _0xe908c7 &&
+                    _0x863d3a[_0x5849d7(0x32d)](_0x5849d7(0x2e0))[_0x5849d7(0x1ed)]("class", _0x5849d7(0x217))["text"](
+                        _0x24552b)[_0x5849d7(0x1ed)]("x", _0x545977)[_0x5849d7(0x1ed)]("y", _0x8c9946 - 0x1);
+            }
+            d3[_0x5849d7(0x2e4)](_0x235517)["on"]("mouseover", (_0x32ab73, _0x3fd148) => {
+                const _0x17987f = _0x5849d7;
+                _0x4ebe51["transition"]()[_0x17987f(0x290)](0x12c)[_0x17987f(0x272)]("opacity", 0x1),
+                    _0x4ebe51[_0x17987f(0x26f)](
+                        _0x17987f(0x333) +
+                        _0x2d0cb7 +
+                        _0x17987f(0x205) +
+                        _0x4b5f21 +
+                        "</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20scope=\x22row\x22>Med</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>" +
+                        _0x24552b +
+                        _0x17987f(0x2cb) +
+                        _0x4bcb31 +
+                        "</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<th\x20scope=\x22row\x22>Max</th>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>" +
+                        _0x4e6469 +
+                        _0x17987f(0x2ad)
+                    )[_0x17987f(0x272)]("font-size", _0x17987f(0x239))["style"](
+                        _0x17987f(0x229),
+                        appState[_0x17987f(0x223)]["x"] +
+                        window[_0x17987f(0x206)] +
+                        0xa +
+                        "px"
+                    )[_0x17987f(0x272)](
+                        "top",
+                        appState[_0x17987f(0x223)]["y"] + window[_0x17987f(0x21a)] + "px"
+                    );
+            })["on"]("mouseout", (_0x4811e6, _0x3b7f83) => {
+                const _0x335b9 = _0x5849d7;
+                _0x4ebe51[_0x335b9(0x209)]()["duration"](0x12c)[_0x335b9(0x272)](_0x335b9(0x1f7), 0x0);
+            });
+        }
+
+        function makeHistogram(_0x18209b, _0x31e1f8, _0x2f522a) {
+            const _0x32251c = _0x84fe1d,
+                _0x3da335 = d3[_0x32251c(0x2e4)](_0x18209b),
+                _0x18ac37 =
+                Math[_0x32251c(0x26a)](
+                    _0x3da335[_0x32251c(0x222)]()[_0x32251c(0x31b)]()["width"]
+                ) - 0x1,
+                _0x56f7b2 = Math[_0x32251c(0x26a)](_0x18ac37 / HISTOGRAM[_0x32251c(0x286)]);
+            _0x3da335["select"]("svg")[_0x32251c(0x20c)]();
+            const _0x376a11 = _0x3da335[_0x32251c(0x32d)]("svg")["attr"](_0x32251c(0x345), _0x18ac37)[_0x32251c(0x1ed)](
+                _0x32251c(0x1ec), _0x56f7b2)[_0x32251c(0x32d)]("g");
+            if (_0x31e1f8[_0x32251c(0x2f6)] === 0x0) return;
+            const _0x3c83cf = appState["tooltip"],
+                _0x4bcfc8 = 0xf,
+                _0x12ff6d = 0xa,
+                _0x5cb9cd = d3[_0x32251c(0x25e)]()[_0x32251c(0x2d8)]([0x0, Math[_0x32251c(0x2c9)](..._0x31e1f8)])[
+                    _0x32251c(0x2c8)]([_0x4bcfc8, _0x18ac37 - _0x4bcfc8]),
+                _0x2e8621 = d3["histogram"]()[_0x32251c(0x29a)]((_0x3f56c4) => _0x3f56c4)[_0x32251c(0x2d8)](_0x5cb9cd[
+                    _0x32251c(0x2d8)]())[_0x32251c(0x304)](_0x5cb9cd["ticks"](_0x12ff6d)),
+                _0x56b34f = _0x2e8621(_0x31e1f8),
+                _0x4b5cd4 = _0x56b34f[0x0]["x1"] - _0x56b34f[0x0]["x0"],
+                _0x17db0b = d3[_0x32251c(0x25e)]()["domain"]([0x0, _0x4b5cd4 * _0x56b34f[_0x32251c(0x2f6)]])["range"]([
+                    _0x4bcfc8, _0x18ac37 - _0x4bcfc8
+                ]),
+                _0x431cb1 =
+                _0x17db0b(_0x56b34f[0x0]["x1"]) - _0x17db0b(_0x56b34f[0x0]["x0"]) - 0x1,
+                _0x3fb871 = d3[_0x32251c(0x25e)]()[_0x32251c(0x2c8)]([_0x56f7b2 * HISTOGRAM[_0x32251c(0x257)], 0x0])[
+                    "domain"]([
+                    0x0,
+                    d3[_0x32251c(0x2c9)](
+                        _0x56b34f,
+                        (_0x4de97e) => _0x4de97e[_0x32251c(0x2f6)]
+                    ),
+                ]);
+            _0x376a11[_0x32251c(0x280)](_0x32251c(0x327))[_0x32251c(0x337)](_0x56b34f)[_0x32251c(0x287)]()[_0x32251c(
+                    0x32d)](_0x32251c(0x243))["attr"](_0x32251c(0x2d7), _0x32251c(0x237))[_0x32251c(0x1ed)]("x", 0x1)[
+                    _0x32251c(0x1ed)]("transform", function (_0x2aee1d) {
+                    const _0x3ce252 = _0x32251c;
+                    return (
+                        _0x3ce252(0x253) +
+                        _0x17db0b(_0x2aee1d["x0"]) +
+                        "," +
+                        _0x3fb871(_0x2aee1d[_0x3ce252(0x2f6)]) +
+                        ")"
+                    );
+                })["attr"](_0x32251c(0x345), _0x431cb1 - 0x1)[_0x32251c(0x1ed)]("height", function (_0x50fb87) {
+                    const _0x37b122 = _0x32251c;
+                    return (
+                        _0x56f7b2 * HISTOGRAM[_0x37b122(0x257)] -
+                        _0x3fb871(_0x50fb87[_0x37b122(0x2f6)])
+                    );
+                }),
+                _0x376a11["selectAll"](_0x32251c(0x258))[_0x32251c(0x337)](_0x56b34f)[_0x32251c(0x287)]()[_0x32251c(
+                    0x32d)](_0x32251c(0x243))["attr"](_0x32251c(0x2d7), _0x32251c(0x23d))[_0x32251c(0x1ed)]("x", 0x1)[
+                    _0x32251c(0x1ed)](_0x32251c(0x262), function (_0x40420f) {
+                    const _0x5f0b39 = _0x32251c;
+                    return _0x5f0b39(0x253) + _0x17db0b(_0x40420f["x0"]) + _0x5f0b39(0x2b3);
+                })[_0x32251c(0x1ed)](_0x32251c(0x345), _0x431cb1 - 0x1)["attr"]("height", function (_0x2564d5) {
+                    const _0x1ba9fb = _0x32251c;
+                    return _0x56f7b2 * HISTOGRAM[_0x1ba9fb(0x257)];
+                })["on"](_0x32251c(0x236), (_0x3cdd5, _0x717840) => {
+                    const _0x443c6 = _0x32251c;
+                    _0x3c83cf[_0x443c6(0x209)]()[_0x443c6(0x290)](0x12c)[_0x443c6(0x272)](_0x443c6(0x1f7), 0x1),
+                        _0x3c83cf[_0x443c6(0x26f)](
+                            "\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20Range:\x20" +
+                            _0x717840["x0"] +
+                            _0x443c6(0x26b) +
+                            _0x717840["x1"] +
+                            _0x443c6(0x326) +
+                            _0x717840[_0x443c6(0x2f6)] +
+                            "\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20"
+                        )[_0x443c6(0x272)](_0x443c6(0x1f2), _0x443c6(0x239))["style"](
+                            _0x443c6(0x229),
+                            appState["mousePos"]["x"] + window[_0x443c6(0x206)] + 0xa + "px"
+                        )[_0x443c6(0x272)](
+                            "top",
+                            appState[_0x443c6(0x223)]["y"] + window[_0x443c6(0x21a)] + "px"
+                        );
+                })["on"](_0x32251c(0x1f8), (_0x31fcd0, _0x174af7) => {
+                    const _0x3ff33c = _0x32251c;
+                    _0x3c83cf["transition"]()["duration"](0x12c)[_0x3ff33c(0x272)](_0x3ff33c(0x1f7), 0x0);
+                });
+            const _0xa315a4 = _0x376a11[_0x32251c(0x32d)]("g")[_0x32251c(0x1ed)](
+                    _0x32251c(0x262),
+                    "translate(0,\x20" + _0x56f7b2 * HISTOGRAM[_0x32251c(0x257)] + ")"
+                )["call"](d3["axisBottom"](_0x17db0b)[_0x32251c(0x245)](_0x2f522a)),
+                _0x29899b = _0xa315a4["selectAll"](_0x32251c(0x2e0));
+            _0x29899b[_0x32251c(0x2a2)](function (_0x479420, _0x437405) {
+                const _0x5aa5c3 = _0x32251c;
+                _0x437405 !== _0x56b34f[_0x5aa5c3(0x2f6)] &&
+                    _0x437405 !== 0x0 &&
+                    d3[_0x5aa5c3(0x2e4)](this)[_0x5aa5c3(0x20c)]();
+            });
+        }
+
+        function makeBoxPlotsAndHistograms(_0x1e23b4) {
+            const _0x3a485f = _0x84fe1d;
+            expandLowerCardToggleButtons(_0x3a485f(0x1f1)),
+                expandLowerCardToggleButtons(_0x3a485f(0x306)),
+                expandLowerCardToggleButtons(_0x3a485f(0x2d2)),
+                makeBoxPlot(
+                    _0x3a485f(0x315),
+                    _0x1e23b4["map"]((_0x515ab5) => _0x515ab5[_0x3a485f(0x277)] * 0x64),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x23f),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x53474e) => _0x53474e[_0x3a485f(0x2c0)])[
+                        _0x3a485f(0x225)
+                    ]((_0x1fe92f) => _0x1fe92f !== 0x0),
+                    0x0,
+                    [0x1, 0x24]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x330),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x1d6980) => _0x1d6980[_0x3a485f(0x2ff)])[
+                        _0x3a485f(0x225)
+                    ]((_0x3cc00a) => _0x3cc00a !== 0x0),
+                    0x0,
+                    [0x190, 0x640]
+                ),
+                makeHistogram(
+                    _0x3a485f(0x2aa),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x4f41c7) => _0x4f41c7["undergradPopulation"]
+                    ),
+                    (_0x33e307) =>
+                    (Math[_0x3a485f(0x26a)]((_0x33e307 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeBoxPlot(
+                    "#demogr-card-svg-5",
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x32c7cc) => _0x32c7cc["nonresidentAliensRate"] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x233),
+                    _0x1e23b4["map"]((_0x16c7ef) => _0x16c7ef[_0x3a485f(0x2e2)] * 0x64),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x204),
+                    _0x1e23b4["map"](
+                        (_0x8c19fc) => _0x8c19fc["completion150TimeRate"] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    "#demogr-card-svg-8",
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x52333a) => _0x52333a[_0x3a485f(0x1ef)] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x312),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x1abcf8) => _0x1abcf8["undergrads25YORate"] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x2bf),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x1d2b3d) => _0x1d2b3d[_0x3a485f(0x2f9)] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeHistogram(
+                    _0x3a485f(0x298),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x105eeb) =>
+                        Math[_0x3a485f(0x26a)](_0x105eeb["averageAgeOfEntry"] * 0x64) / 0x64
+                    )[_0x3a485f(0x225)]((_0x63f0f2) => _0x63f0f2 > 0x0),
+                    (_0x2dfe2d) => _0x2dfe2d
+                ),
+                makeHistogram(
+                    _0x3a485f(0x2d3),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0xe609ee) => _0xe609ee[_0x3a485f(0x2f1)]),
+                    (_0x42e6d8) =>
+                    (Math[_0x3a485f(0x26a)]((_0x42e6d8 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeHistogram(
+                    _0x3a485f(0x2f3),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x58afad) => _0x58afad[_0x3a485f(0x2a6)]),
+                    (_0x345da3) =>
+                    (Math[_0x3a485f(0x26a)]((_0x345da3 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeHistogram(
+                    _0x3a485f(0x32e),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x487aae) => _0x487aae[_0x3a485f(0x322)]),
+                    (_0x556e5f) =>
+                    (Math["round"]((_0x556e5f * 0x1) / 0x3e8) * 0xa) / 0xa + "\x20K"
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x2fc),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x175c9f) => _0x175c9f["undergradsWithPellGrantRate"] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x2b2),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x17c9e7) => _0x17c9e7[_0x3a485f(0x2f0)] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x2f7),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x1ed5e1) => _0x1ed5e1["federalLoansRate"] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeHistogram(
+                    "#finance-card-svg-7",
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x16a1fe) => _0x16a1fe["medianDebt"]),
+                    (_0x32266e) =>
+                    (Math[_0x3a485f(0x26a)]((_0x32266e * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeHistogram(
+                    "#finance-card-svg-8",
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x53da42) => _0x53da42[_0x3a485f(0x219)]),
+                    (_0x22a6c9) =>
+                    (Math["round"]((_0x22a6c9 * 0x1) / 0x3e8) * 0xa) / 0xa + "\x20K"
+                ),
+                makeHistogram(
+                    _0x3a485f(0x231),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0xa7b568) => _0xa7b568[_0x3a485f(0x2c7)]),
+                    (_0x43470d) =>
+                    (Math["round"]((_0x43470d * 0x1) / 0x3e8) * 0xa) / 0xa + "\x20K"
+                ),
+                makeHistogram(
+                    _0x3a485f(0x21f),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x22c9fe) => _0x22c9fe["averageFamilyIncome"]
+                    ),
+                    (_0xadc0a0) =>
+                    (Math[_0x3a485f(0x26a)]((_0xadc0a0 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeHistogram(
+                    _0x3a485f(0x254),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x5a18c2) => _0x5a18c2[_0x3a485f(0x305)]),
+                    (_0x952240) =>
+                    (Math[_0x3a485f(0x26a)]((_0x952240 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x2af),
+                    _0x1e23b4["map"]((_0x148f96) => _0x148f96[_0x3a485f(0x2d0)] * 0x64),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeBoxPlot(
+                    _0x3a485f(0x256),
+                    _0x1e23b4[_0x3a485f(0x2ba)](
+                        (_0x208ead) => _0x208ead[_0x3a485f(0x300)] * 0x64
+                    ),
+                    0x2,
+                    [0x0, 0x64]
+                ),
+                makeHistogram(
+                    _0x3a485f(0x215),
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x1ac4d1) => _0x1ac4d1[_0x3a485f(0x283)]),
+                    (_0x686ca5) =>
+                    (Math[_0x3a485f(0x26a)]((_0x686ca5 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                makeHistogram(
+                    "#finance-card-svg-15",
+                    _0x1e23b4[_0x3a485f(0x2ba)]((_0x29cb9c) => _0x29cb9c[_0x3a485f(0x2d6)]),
+                    (_0x1fb529) =>
+                    (Math[_0x3a485f(0x26a)]((_0x1fb529 * 0x1) / 0x3e8) * 0xa) / 0xa +
+                    "\x20K"
+                ),
+                bindLowerCardToggleButtons(
+                    _0x3a485f(0x1f1),
+                    BUTTON_NEXT_VALUES_MEDIAN_DEBT
+                ),
+                bindLowerCardToggleButtons(
+                    ".family-income-group",
+                    BUTTON_NEXT_VALUES_FAMILY_INCOME
+                ),
+                bindLowerCardToggleButtons(
+                    _0x3a485f(0x2d2),
+                    BUTTON_NEXT_VALUES_EARNINGS_8_YEARS
+                ),
+                collapseLowerCardToggleButtons(_0x3a485f(0x1f1)),
+                collapseLowerCardToggleButtons(_0x3a485f(0x306)),
+                collapseLowerCardToggleButtons(_0x3a485f(0x2d2));
+        }
+
+        function collapseLowerCardToggleButtons(_0x1762ec) {
+            const _0x124b80 = _0x84fe1d;
+            d3[_0x124b80(0x280)](_0x1762ec)[_0x124b80(0x2a2)](function (
+                _0x4d051b,
+                _0x238daa
+            ) {
+                const _0x2dde60 = _0x124b80,
+                    _0x1ff362 = d3[_0x2dde60(0x2e4)](this);
+                _0x1ff362[_0x2dde60(0x25c)](_0x2dde60(0x27f), _0x238daa !== 0x0);
+            });
+        }
+
+        function expandLowerCardToggleButtons(_0x1fd7ce) {
+            const _0x11971f = _0x84fe1d;
+            d3[_0x11971f(0x280)](_0x1fd7ce)[_0x11971f(0x2a2)](function (
+                _0x53f4d7,
+                _0x2ed50b
+            ) {
+                const _0x33edad = d3["select"](this);
+                _0x33edad["classed"]("shape-no-display", ![]);
+            });
+        }
+
+        function bindLowerCardToggleButtons(_0x92af09, _0x2d9a95) {
+            const _0x7481e5 = _0x84fe1d;
+            d3[_0x7481e5(0x280)](_0x92af09)[_0x7481e5(0x2a2)](function (
+                _0x5344a8,
+                _0x5eab90
+            ) {
+                const _0xba9577 = _0x7481e5,
+                    _0x302ee6 = d3["select"](this)[_0xba9577(0x2e4)](_0xba9577(0x2ee));
+                _0x302ee6["on"]("click", () => {
+                    const _0x1bf3e8 = _0xba9577,
+                        _0x4c28df = _0x2d9a95[_0x302ee6[_0x1bf3e8(0x1ed)](_0x1bf3e8(0x29a))];
+                    d3[_0x1bf3e8(0x280)](_0x92af09)[_0x1bf3e8(0x2a2)](function (
+                        _0x5a3461,
+                        _0x31d51d
+                    ) {
+                        const _0x2b452c = _0x1bf3e8,
+                            _0x1bfd99 = d3[_0x2b452c(0x2e4)](this),
+                            _0x1a538c = _0x1bfd99[_0x2b452c(0x2e4)](_0x2b452c(0x2ee))["attr"](
+                                _0x2b452c(0x29a)
+                            );
+                        _0x1bfd99[_0x2b452c(0x25c)](_0x2b452c(0x27f), _0x4c28df !== _0x1a538c);
+                    });
+                });
+            });
+        }
+
+        function updateLowerCards() {
+            const _0x3b6416 = _0x84fe1d;
+            d3[_0x3b6416(0x2e4)](_0x3b6416(0x29e))[_0x3b6416(0x25c)](
+                    "shape-no-display",
+                    ![]
+                ),
+                makeBoxPlotsAndHistograms(appState["exploreCardFilteredSchools"]),
+                d3[_0x3b6416(0x2e4)](_0x3b6416(0x29e))["classed"](
+                    _0x3b6416(0x27f),
+                    appState[_0x3b6416(0x22d)][_0x3b6416(0x2f6)] === 0x0
+                );
+        }
+        getDataAsync()["then"]((_0x14a84f) => {
+            const _0x3614a5 = _0x84fe1d;
+            (appState[_0x3614a5(0x30a)] = _0x14a84f[0x0]),
+            (appState["MAP_DATA"] = _0x14a84f[0x1]),
+            (appState[_0x3614a5(0x301)] = _0x14a84f[0x2]),
+            (appState[_0x3614a5(0x208)] = _0x14a84f[0x3]),
+            (appState[_0x3614a5(0x28d)] = deepcopy(_0x14a84f[0x3])),
+            (appState["configureCardSearchText"] = ""),
+            (appState[_0x3614a5(0x2c5)] = ![]),
+            (appState["exploreCardFigureData"] = new Object()),
+            (appState[_0x3614a5(0x31c)] = !![]),
+            (appState[_0x3614a5(0x227)] = !![]),
+            (appState[_0x3614a5(0x22d)] = deepcopy(_0x14a84f[0x0])),
+            (appState[_0x3614a5(0x24c)] = new Object()),
+            (appState[_0x3614a5(0x261)] = d3[_0x3614a5(0x2e4)]("body")["append"]("div")[_0x3614a5(0x1ed)]("id",
+                "explore-card-tooltip")[_0x3614a5(0x272)](_0x3614a5(0x1f7), 0x0)),
+            initSummaryCard(),
+                createChoroplethMap(),
+                initConfigureCard(),
+                makeBoxPlotsAndHistograms(appState[_0x3614a5(0x30a)]);
+        });
+
+        function initSummaryCard() {
+            const _0x685ace = _0x84fe1d;
+            d3[_0x685ace(0x2e4)](_0x685ace(0x1eb))["text"](
+                    appState[_0x685ace(0x30a)]["length"]
+                ),
+                createHeatMap(),
+                createPieCharts(),
+                createTreemap();
+        }
+
+        function createHeatMap() {
+            const _0xcbb968 = _0x84fe1d,
+                _0x14e5c4 = d3[_0xcbb968(0x2e4)](_0xcbb968(0x30d));
+            let _0x80f4bf = Math[_0xcbb968(0x26a)](
+                    _0x14e5c4[_0xcbb968(0x222)]()[_0xcbb968(0x31b)]()[_0xcbb968(0x345)]
+                ),
+                _0x271592 = Math[_0xcbb968(0x26a)](
+                    _0x80f4bf / SUMMARY_CARD[_0xcbb968(0x342)]
+                );
+            const _0x48abe9 = {
+                top: 0x0,
+                right: 0x0,
+                bottom: 0x1e,
+                left: 0x1e
+            };
+            (_0x80f4bf = _0x80f4bf - _0x48abe9["left"] - _0x48abe9[_0xcbb968(0x24d)]),
+            (_0x271592 =
+                _0x271592 - _0x48abe9[_0xcbb968(0x292)] - _0x48abe9[_0xcbb968(0x27e)]);
+            const _0x100268 = _0x14e5c4[_0xcbb968(0x32d)](_0xcbb968(0x2e9))[_0xcbb968(0x1ed)](
+                    _0xcbb968(0x345),
+                    _0x80f4bf + _0x48abe9[_0xcbb968(0x229)] + _0x48abe9[_0xcbb968(0x24d)]
+                )["attr"](
+                    _0xcbb968(0x1ec),
+                    _0x271592 + _0x48abe9[_0xcbb968(0x292)] + _0x48abe9[_0xcbb968(0x27e)]
+                )[_0xcbb968(0x32d)]("g")[_0xcbb968(0x1ed)](
+                    _0xcbb968(0x262),
+                    _0xcbb968(0x253) +
+                    _0x48abe9[_0xcbb968(0x229)] +
+                    "," +
+                    _0x48abe9["top"] +
+                    ")"
+                ),
+                _0x13dcb4 = getDegreeData(appState[_0xcbb968(0x30a)]),
+                _0x47936d = getUniqueValues(_0x13dcb4, _0xcbb968(0x320)),
+                _0x13033b = getUniqueValues(_0x13dcb4, _0xcbb968(0x20b)),
+                _0x1fefd1 = d3[_0xcbb968(0x212)]()[_0xcbb968(0x2c8)]([0x0, _0x80f4bf])["domain"](_0x47936d)[_0xcbb968(
+                    0x203)](0.05);
+            _0x100268[_0xcbb968(0x32d)]("g")["attr"](_0xcbb968(0x2d7), _0xcbb968(0x32f))[_0xcbb968(0x1ed)](_0xcbb968(
+                0x262), _0xcbb968(0x2ed) + _0x271592 + ")")[_0xcbb968(0x230)](d3[_0xcbb968(0x23e)](_0x1fefd1)[
+                "tickSize"](0x0))[_0xcbb968(0x2e4)](".domain")[_0xcbb968(0x20c)]();
+            const _0x51ef99 = d3[_0xcbb968(0x212)]()["range"]([_0x271592, 0x0])["domain"](_0x13033b)[_0xcbb968(0x203)](
+                0.05);
+            _0x100268[_0xcbb968(0x32d)]("g")[_0xcbb968(0x1ed)](_0xcbb968(0x2d7), _0xcbb968(0x32f))[_0xcbb968(0x230)](d3[
+                _0xcbb968(0x2f8)](_0x51ef99)[_0xcbb968(0x2b0)](0x0))[_0xcbb968(0x2e4)](_0xcbb968(0x228))[_0xcbb968(
+                0x20c)]();
+            const _0x4341da = d3[_0xcbb968(0x1f0)]()["domain"]([
+                    0x0,
+                    Math["max"](
+                        ..._0x13dcb4[_0xcbb968(0x2ba)]((_0x320485) => _0x320485["value"]),
+                        0x1
+                    ),
+                ])[_0xcbb968(0x2c8)]([0x0, 0.9]),
+                _0x5ea3cb = appState["tooltip"],
+                _0x2127d7 = _0x100268["selectAll"](_0xcbb968(0x2d5))[_0xcbb968(0x337)](_0x13dcb4)[_0xcbb968(0x287)]()[
+                    _0xcbb968(0x32d)](_0xcbb968(0x243));
+            (appState[_0xcbb968(0x24c)][_0xcbb968(0x31a)] = _0x2127d7),
+            _0x2127d7["attr"]("x", (_0x35228a) =>
+                    _0x1fefd1(_0x35228a[_0xcbb968(0x320)])
+                )[_0xcbb968(0x1ed)]("y", (_0x41f77c) =>
+                    _0x51ef99(_0x41f77c["highestDegree"])
+                )["attr"](_0xcbb968(0x2d7), "summary-card-heat-map-tiles")[_0xcbb968(0x1ed)]("width", _0x1fefd1[
+                    _0xcbb968(0x2d9)]())[_0xcbb968(0x1ed)](_0xcbb968(0x1ec), _0x51ef99[_0xcbb968(0x2d9)]())["attr"](
+                    "fill-opacity", (_0x399cc4) => _0x4341da(_0x399cc4["value"]))["on"]("mouseover", (_0x5eb175,
+                    _0x58bd18) => {
+                    const _0x5e8162 = _0xcbb968;
+                    _0x5ea3cb["transition"]()[_0x5e8162(0x290)](0x12c)[_0x5e8162(0x272)]("opacity", 0x1),
+                        _0x5ea3cb[_0x5e8162(0x26f)](
+                            "Predominant:\x20" +
+                            DEGREE_ENCODING[_0x58bd18[_0x5e8162(0x320)]] +
+                            _0x5e8162(0x297) +
+                            DEGREE_ENCODING[_0x58bd18[_0x5e8162(0x20b)]] +
+                            _0x5e8162(0x311) +
+                            _0x58bd18[_0x5e8162(0x29a)] +
+                            ",\x20" +
+                            Math[_0x5e8162(0x26a)](_0x58bd18[_0x5e8162(0x32a)] * 0x3e8) /
+                            0xa +
+                            "%"
+                        )["style"](_0x5e8162(0x1f2), _0x5e8162(0x239))[_0x5e8162(0x272)](
+                            "left",
+                            appState["mousePos"]["x"] + window[_0x5e8162(0x206)] + 0xa + "px"
+                        )[_0x5e8162(0x272)](
+                            _0x5e8162(0x292),
+                            appState[_0x5e8162(0x223)]["y"] + window[_0x5e8162(0x21a)] + "px"
+                        );
+                })["on"]("mouseout", (_0xa2255b, _0x44a5e1) => {
+                    const _0x580395 = _0xcbb968;
+                    _0x5ea3cb[_0x580395(0x209)]()[_0x580395(0x290)](0x12c)[_0x580395(0x272)](_0x580395(0x1f7), 0x0);
+                }),
+                _0x100268[_0xcbb968(0x32d)](_0xcbb968(0x2e0))[_0xcbb968(0x2e0)](_0xcbb968(0x207))[_0xcbb968(0x1ed)]("x",
+                    _0x80f4bf / 0x2)["attr"]("y", _0x271592 + _0x48abe9[_0xcbb968(0x27e)] - 0x5)[_0xcbb968(0x1ed)](
+                    _0xcbb968(0x2fb), _0xcbb968(0x22f))[_0xcbb968(0x1ed)](_0xcbb968(0x2d7), _0xcbb968(0x32f)),
+                _0x100268[_0xcbb968(0x32d)](_0xcbb968(0x2e0))[_0xcbb968(0x2e0)]("Highest")[_0xcbb968(0x1ed)](
+                    "transform", _0xcbb968(0x2a8))[_0xcbb968(0x1ed)]("y", -_0x48abe9[_0xcbb968(0x229)] + 12.5)[
+                    _0xcbb968(0x1ed)]("x", -_0x271592 / 0x2)[_0xcbb968(0x1ed)](_0xcbb968(0x2fb), _0xcbb968(0x22f))[
+                    _0xcbb968(0x1ed)](_0xcbb968(0x2d7), "summary-card-heat-map-text"),
+                d3[_0xcbb968(0x2e4)](_0xcbb968(0x2bd))["on"](_0xcbb968(0x25d), () => {
+                    const _0x7df2cd = _0xcbb968;
+                    d3[_0x7df2cd(0x2e4)]("#summary-card-composition-donut-group")[
+                            _0x7df2cd(0x25c)
+                        ]("shape-no-display", ![]),
+                        d3[_0x7df2cd(0x2e4)]("#summary-card-composition-svg-4")["classed"](
+                            _0x7df2cd(0x27f),
+                            !![]
+                        ),
+                        d3[_0x7df2cd(0x2e4)](_0x7df2cd(0x2bd))[_0x7df2cd(0x25c)](
+                            _0x7df2cd(0x20a),
+                            !![]
+                        ),
+                        d3[_0x7df2cd(0x2e4)](_0x7df2cd(0x2bd))[_0x7df2cd(0x25c)](
+                            _0x7df2cd(0x1ea),
+                            ![]
+                        ),
+                        d3[_0x7df2cd(0x2e4)](_0x7df2cd(0x248))[_0x7df2cd(0x25c)](
+                            _0x7df2cd(0x20a),
+                            ![]
+                        ),
+                        d3[_0x7df2cd(0x2e4)](_0x7df2cd(0x248))["classed"](
+                            _0x7df2cd(0x1ea),
+                            !![]
+                        ),
+                        updateSummaryCard();
+                }),
+                d3[_0xcbb968(0x2e4)](_0xcbb968(0x248))["on"](_0xcbb968(0x25d), () => {
+                    const _0x22f2e5 = _0xcbb968;
+                    d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x28e))[_0x22f2e5(0x25c)](
+                            "shape-no-display",
+                            !![]
+                        ),
+                        d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x1f4))["classed"](
+                            _0x22f2e5(0x27f),
+                            ![]
+                        ),
+                        d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x2bd))["classed"](
+                            _0x22f2e5(0x20a),
+                            ![]
+                        ),
+                        d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x2bd))[_0x22f2e5(0x25c)](
+                            _0x22f2e5(0x1ea),
+                            !![]
+                        ),
+                        d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x248))[_0x22f2e5(0x25c)](
+                            _0x22f2e5(0x20a),
+                            !![]
+                        ),
+                        d3[_0x22f2e5(0x2e4)](_0x22f2e5(0x248))[_0x22f2e5(0x25c)](
+                            _0x22f2e5(0x1ea),
+                            ![]
+                        ),
+                        updateSummaryCard();
+                });
+        }
+
+        function updateSummaryCard() {
+            const _0x2fd6a0 = _0x84fe1d;
+            d3["select"](_0x2fd6a0(0x1eb))[_0x2fd6a0(0x2e0)](
+                appState[_0x2fd6a0(0x22d)][_0x2fd6a0(0x2f6)]
+            );
+            const _0x38ff23 = getDegreeData(appState[_0x2fd6a0(0x22d)]);
+            d3[_0x2fd6a0(0x2e4)](_0x2fd6a0(0x1ee))[_0x2fd6a0(0x280)](_0x2fd6a0(0x273))[_0x2fd6a0(0x25c)](
+                _0x2fd6a0(0x27f),
+                appState["exploreCardFilteredSchools"][_0x2fd6a0(0x2f6)] === 0x0
+            );
+            const _0x4c0448 = d3[_0x2fd6a0(0x1f0)]()[_0x2fd6a0(0x2d8)]([
+                0x0,
+                Math[_0x2fd6a0(0x2c9)](
+                    ..._0x38ff23[_0x2fd6a0(0x2ba)](
+                        (_0x3af026) => _0x3af026[_0x2fd6a0(0x29a)]
+                    ),
+                    0x1
+                ),
+            ])["range"]([0x0, 0.9]);
+            appState["summaryCardFigureData"]["tileDegrees"]
+                [_0x2fd6a0(0x337)](_0x38ff23)["attr"](_0x2fd6a0(0x232), (_0x4376aa) =>
+                    _0x4c0448(_0x4376aa[_0x2fd6a0(0x29a)])
+                ),
+                createPieCharts(),
+                createTreemap();
+        }
+
+        function createPieCharts() {
+            const _0x1760b8 = _0x84fe1d,
+                _0x5bb3e7 = getCompositionDonutChartData();
+            createPieChart(
+                    "#summary-card-composition-svg-1",
+                    _0x5bb3e7[_0x1760b8(0x2a9)],
+                    "control"
+                ),
+                createPieChart(
+                    _0x1760b8(0x2be),
+                    _0x5bb3e7[_0x1760b8(0x30e)],
+                    _0x1760b8(0x30e)
+                ),
+                createPieChart(_0x1760b8(0x309), _0x5bb3e7["locale"], _0x1760b8(0x26c));
+        }
+
+        function createPieChart(_0x2adde2, _0x7073af, _0x498e1e) {
+            const _0x40941c = _0x84fe1d,
+                _0x2a2fe4 = d3["select"](_0x2adde2),
+                _0x20a8cd = appState[_0x40941c(0x261)],
+                _0x43f3ea = Math[_0x40941c(0x26a)](
+                    _0x2a2fe4[_0x40941c(0x222)]()[_0x40941c(0x31b)]()["width"]
+                ),
+                _0x378e63 = Math[_0x40941c(0x26a)](
+                    _0x43f3ea / SUMMARY_CARD[_0x40941c(0x347)]
+                ),
+                _0x37fbc1 = 0x0,
+                _0x21273e = Math[_0x40941c(0x238)](_0x43f3ea, _0x378e63) / 0x2 - _0x37fbc1;
+            _0x2a2fe4["select"](_0x40941c(0x2e9))[_0x40941c(0x20c)]();
+            const _0x28bca4 = _0x2a2fe4[_0x40941c(0x32d)](_0x40941c(0x2e9))[_0x40941c(0x1ed)](_0x40941c(0x345),
+                    _0x43f3ea)["attr"](_0x40941c(0x1ec), _0x378e63)[_0x40941c(0x32d)]("g")[_0x40941c(0x1ed)](
+                    _0x40941c(0x262),
+                    _0x40941c(0x253) + _0x43f3ea / 0x2 + "," + _0x378e63 / 0x2 + ")"
+                ),
+                _0x530005 = d3[_0x40941c(0x2db)]()[_0x40941c(0x2d8)](Object["keys"](_0x7073af))["range"](d3[_0x40941c(
+                    0x263)]),
+                _0x2fbb61 = d3[_0x40941c(0x246)]()[_0x40941c(0x2de)](null)[_0x40941c(0x29a)]((_0x431dd0) => _0x431dd0[
+                    0x1]),
+                _0x27ecd1 = _0x2fbb61(Object["entries"](_0x7073af)),
+                _0x2bcc9c = d3[_0x40941c(0x32b)]()[_0x40941c(0x2fe)](_0x21273e * 0.6)[_0x40941c(0x323)](_0x21273e *
+                0.9);
+            _0x28bca4[_0x40941c(0x280)](_0x40941c(0x20e) + _0x498e1e)[_0x40941c(0x337)](_0x27ecd1)[_0x40941c(0x2d1)](
+                _0x40941c(0x338))[_0x40941c(0x1ed)]("d", _0x2bcc9c)[_0x40941c(0x1ed)](
+                _0x40941c(0x2d7),
+                _0x40941c(0x221) + _0x498e1e + "\x20summary-card-composition-arc"
+            )[_0x40941c(0x1ed)]("fill", (_0x4e9196) =>
+                _0x530005(_0x4e9196[_0x40941c(0x337)][0x1])
+            )[_0x40941c(0x272)](_0x40941c(0x1f7), 0.5)["on"](_0x40941c(0x236), (_0x2848fa, _0xf4b5e) => {
+                const _0x3aaacd = _0x40941c;
+                d3[_0x3aaacd(0x2e4)](_0x2848fa[_0x3aaacd(0x2fa)])[_0x3aaacd(0x272)](
+                        "opacity",
+                        0x1
+                    ),
+                    _0x20a8cd["transition"]()[_0x3aaacd(0x290)](0x12c)[_0x3aaacd(0x272)](_0x3aaacd(0x1f7), 0x1),
+                    _0x20a8cd[_0x3aaacd(0x26f)](
+                        _0xf4b5e[_0x3aaacd(0x337)][0x0] +
+                        _0x3aaacd(0x2ac) +
+                        _0xf4b5e["data"][0x1] +
+                        ",\x20" +
+                        Math[_0x3aaacd(0x26a)](
+                            ((_0xf4b5e[_0x3aaacd(0x22b)] - _0xf4b5e[_0x3aaacd(0x29d)]) /
+                                Math["PI"] /
+                                0x2) *
+                            0x3e8
+                        ) /
+                        0xa +
+                        "%"
+                    )[_0x3aaacd(0x272)](_0x3aaacd(0x1f2), _0x3aaacd(0x239))[_0x3aaacd(0x272)](
+                        "left",
+                        appState["mousePos"]["x"] + window["scrollX"] + 0xa + "px"
+                    )[_0x3aaacd(0x272)](
+                        _0x3aaacd(0x292),
+                        appState[_0x3aaacd(0x223)]["y"] + window[_0x3aaacd(0x21a)] + "px"
+                    );
+            })["on"]("mouseout", (_0x3567d9, _0x26ed99) => {
+                const _0x2c7872 = _0x40941c;
+                d3[_0x2c7872(0x2e4)](_0x3567d9[_0x2c7872(0x2fa)])[_0x2c7872(0x272)](
+                        "opacity",
+                        0.5
+                    ),
+                    _0x20a8cd[_0x2c7872(0x209)]()["duration"](0x12c)["style"]("opacity", 0x0);
+            });
+        }
+
+        function createTreemap() {
+            const _0xddef1c = _0x84fe1d,
+                _0x376162 = getCompositionTreemapData(),
+                _0x3a5fde = d3[_0xddef1c(0x2e4)](_0xddef1c(0x1f4)),
+                _0x5a4215 = appState[_0xddef1c(0x261)],
+                _0x2fd499 = Math[_0xddef1c(0x26a)](
+                    _0x3a5fde[_0xddef1c(0x222)]()[_0xddef1c(0x31b)]()["width"]
+                ),
+                _0x3bbcc2 = Math["round"](_0x2fd499 / SUMMARY_CARD[_0xddef1c(0x268)]),
+                _0x5a66bf = d3[_0xddef1c(0x22e)](",d"),
+                _0x100fc5 = d3[_0xddef1c(0x2db)]()[_0xddef1c(0x2d8)](appState["CONFIGURE_CARD_DATA"][_0xddef1c(0x259)])[
+                    _0xddef1c(0x2c8)](
+                    d3[_0xddef1c(0x313)][_0xddef1c(0x2ba)]((_0x5171cb) =>
+                        d3[_0xddef1c(0x284)](_0x5171cb)
+                    )
+                ),
+                _0x2fdb8f = d3[_0xddef1c(0x23c)]()[_0xddef1c(0x2d8)](RANKED_LOCALE)[_0xddef1c(0x2c8)]([0.3, 0.7]),
+                _0x56578a = d3[_0xddef1c(0x25b)]()[_0xddef1c(0x2b5)]((_0x34bf4b) =>
+                    _0x34bf4b["id"][_0xddef1c(0x2cc)](
+                        0x0,
+                        _0x34bf4b["id"][_0xddef1c(0x234)](".")
+                    )
+                ),
+                _0xcb3e57 = d3[_0xddef1c(0x336)]()[_0xddef1c(0x213)]([_0x2fd499, _0x3bbcc2])[_0xddef1c(0x203)](0x1)[
+                    _0xddef1c(0x26a)](!![]),
+                _0x23f11b = _0x56578a(_0x376162)[_0xddef1c(0x2df)]((_0x2da8b3) => _0x2da8b3[_0xddef1c(0x29a)])[
+                    _0xddef1c(0x2de)](
+                    (_0x33871d, _0x2a5912) =>
+                    _0x2a5912[_0xddef1c(0x1ec)] - _0x33871d[_0xddef1c(0x1ec)] ||
+                    _0x2a5912[_0xddef1c(0x29a)] - _0x33871d[_0xddef1c(0x29a)]
+                );
+            _0xcb3e57(_0x23f11b),
+                _0x3a5fde["selectAll"](_0xddef1c(0x33c))[_0xddef1c(0x20c)](),
+                _0x3a5fde[_0xddef1c(0x280)](_0xddef1c(0x33c))["data"](_0x23f11b["leaves"]())[_0xddef1c(0x287)]()[
+                    _0xddef1c(0x32d)]("div")[_0xddef1c(0x1ed)](_0xddef1c(0x2d7), _0xddef1c(0x27b))[_0xddef1c(0x1ed)](
+                    _0xddef1c(0x2ab),
+                    (_0x595bea) =>
+                    _0x595bea["id"] + "\x0a" + _0x5a66bf(_0x595bea[_0xddef1c(0x29a)])
+                )[_0xddef1c(0x272)](
+                    _0xddef1c(0x229),
+                    (_0x3f3855) => _0x3f3855["x0"] + "px"
+                )[_0xddef1c(0x272)](
+                    _0xddef1c(0x292),
+                    (_0x4f6de7) => _0x4f6de7["y0"] + "px"
+                )[_0xddef1c(0x272)](
+                    _0xddef1c(0x345),
+                    (_0x2b7b05) => _0x2b7b05["x1"] - _0x2b7b05["x0"] + "px"
+                )[_0xddef1c(0x272)](
+                    _0xddef1c(0x1ec),
+                    (_0x4e5640) => _0x4e5640["y1"] - _0x4e5640["y0"] + "px"
+                )[_0xddef1c(0x272)](_0xddef1c(0x299), (_0x19606a) =>
+                    _0x100fc5(_0x19606a["id"][_0xddef1c(0x2cd)](".")[0x2])
+                )[_0xddef1c(0x272)](_0xddef1c(0x1f7), (_0x21e15e) =>
+                    _0x2fdb8f(_0x21e15e["id"][_0xddef1c(0x2cd)](".")[0x3])
+                )["attr"](_0xddef1c(0x226), (_0x34790b) =>
+                    _0x2fdb8f(_0x34790b["id"][_0xddef1c(0x2cd)](".")[0x3])
+                )["on"](_0xddef1c(0x236), (_0x1b1f1d, _0x2dec3a) => {
+                    const _0x371afc = _0xddef1c,
+                        _0xdb8ce9 = d3[_0x371afc(0x2e4)](_0x1b1f1d[_0x371afc(0x2fa)]);
+                    _0xdb8ce9["style"](_0x371afc(0x1f7), "1");
+                    const [_0x13f7f8, _0x3c6870, _0x2a39e6] = _0x2dec3a[_0x371afc(0x337)][
+                            "id"
+                        ]
+                        [_0x371afc(0x2cd)](".")[_0x371afc(0x28c)](0x1, 0x4);
+                    _0x5a4215[_0x371afc(0x209)]()[_0x371afc(0x290)](0x12c)[_0x371afc(0x272)](_0x371afc(0x1f7), 0x1),
+                        _0x5a4215[_0x371afc(0x26f)](
+                            _0x371afc(0x2ae) +
+                            _0x13f7f8 +
+                            _0x371afc(0x23b) +
+                            _0x3c6870 +
+                            _0x371afc(0x2fd) +
+                            _0x2a39e6 +
+                            _0x371afc(0x2ac) +
+                            _0x2dec3a["data"]["value"]
+                        )["style"](_0x371afc(0x1f2), _0x371afc(0x239))[_0x371afc(0x272)](
+                            _0x371afc(0x229),
+                            appState[_0x371afc(0x223)]["x"] + window["scrollX"] + 0xa + "px"
+                        )[_0x371afc(0x272)](
+                            _0x371afc(0x292),
+                            appState[_0x371afc(0x223)]["y"] + window[_0x371afc(0x21a)] + "px"
+                        );
+                })["on"]("mouseout", (_0x360a59) => {
+                    const _0x4002bc = _0xddef1c,
+                        _0x26b0b3 = d3[_0x4002bc(0x2e4)](_0x360a59[_0x4002bc(0x2fa)]);
+                    _0x26b0b3[_0x4002bc(0x272)](
+                            _0x4002bc(0x1f7),
+                            _0x26b0b3[_0x4002bc(0x1ed)](_0x4002bc(0x226))
+                        ),
+                        _0x5a4215[_0x4002bc(0x209)]()[_0x4002bc(0x290)](0x12c)[_0x4002bc(0x272)](_0x4002bc(0x1f7),
+                            0x0);
+                });
+        }
+
+        function createChoroplethMap() {
+            const _0x54bce8 = _0x84fe1d,
+                [_0x5dfe07, _0x513848] = [appState[_0x54bce8(0x301)], appState["MAP_DATA"]],
+                _0x428a29 = d3[_0x54bce8(0x2e4)](_0x54bce8(0x295)),
+                _0x3a3f6c = Math[_0x54bce8(0x26a)](
+                    _0x428a29[_0x54bce8(0x222)]()[_0x54bce8(0x31b)]()[_0x54bce8(0x345)]
+                ),
+                _0x1effea = Math[_0x54bce8(0x26a)](
+                    _0x3a3f6c / EXPLORE_CARD[_0x54bce8(0x2c1)]
+                ),
+                _0x4b1748 = d3[_0x54bce8(0x238)](
+                    _0x5dfe07,
+                    (_0x44d7ba) => _0x44d7ba["bachelorsOrHigher"]
+                ),
+                _0x2248f6 = d3["max"](
+                    _0x5dfe07,
+                    (_0x41a416) => _0x41a416[_0x54bce8(0x21c)]
+                );
+            let _0x58f5d6 = function () {
+                const _0x42ee5b = _0x54bce8,
+                    _0x52934b = [];
+                for (let _0x45f6c7 = _0x4b1748; _0x45f6c7 <= _0x2248f6; _0x45f6c7 += 0x9) {
+                    _0x52934b[_0x42ee5b(0x244)](_0x45f6c7);
+                }
+                return _0x52934b;
+            };
+            const _0x12323f = d3["scaleThreshold"]()["domain"](_0x58f5d6())[_0x54bce8(0x2c8)](d3[_0x54bce8(0x1f3)][
+                0x9]),
+                _0x40dc48 = appState[_0x54bce8(0x261)],
+                _0x2a394f = _0x428a29[_0x54bce8(0x32d)](_0x54bce8(0x2e9))["attr"](_0x54bce8(0x345), _0x3a3f6c)[
+                    _0x54bce8(0x1ed)]("height", _0x1effea),
+                _0x5be245 = d3[_0x54bce8(0x1f3)][0x9],
+                _0x31f9e1 = d3["scaleQuantile"]()[_0x54bce8(0x2d8)]([0x2, 0x4c])[_0x54bce8(0x2c8)](_0x5be245),
+                _0x512be4 = _0x2a394f[_0x54bce8(0x32d)]("g"),
+                _0x37f67f = 1.1,
+                _0x5dd89e = d3[_0x54bce8(0x2d4)]()[_0x54bce8(0x335)]([_0x3a3f6c / 0x2, _0x1effea / 0x2])[_0x54bce8(
+                    0x343)](_0x3a3f6c * _0x37f67f),
+                _0x5d9a53 = d3[_0x54bce8(0x1fd)]()["projection"](_0x5dd89e),
+                _0x503b7a = _0x512be4["selectAll"](_0x54bce8(0x24a))[_0x54bce8(0x337)](
+                    topojson[_0x54bce8(0x2b1)](
+                        _0x513848,
+                        _0x513848["objects"][_0x54bce8(0x224)]
+                    )[_0x54bce8(0x334)]
+                )[_0x54bce8(0x287)]()[_0x54bce8(0x32d)]("path");
+            _0x503b7a["attr"]("d", _0x5d9a53)[_0x54bce8(0x1ed)](_0x54bce8(0x2d7), _0x54bce8(0x2f4))[_0x54bce8(0x1ed)](
+                _0x54bce8(0x2c3), (_0x297faa) => _0x297faa["id"])[_0x54bce8(0x1ed)]("data-education", (
+            _0x5bb083) => {
+                const _0x6ccb9d = _0x54bce8;
+                let _0x490958 = _0x5dfe07[_0x6ccb9d(0x225)](
+                    (_0x2f12fa) => _0x2f12fa["fips"] == _0x5bb083["id"]
+                );
+                return _0x490958[0x0] ? _0x490958[0x0][_0x6ccb9d(0x21c)] : 0x0;
+            })["attr"](_0x54bce8(0x319), (_0x404fc9) => {
+                const _0x2f55e1 = _0x54bce8;
+                let _0x348c86 = _0x5dfe07[_0x2f55e1(0x225)](
+                    (_0x3a1c9a) => _0x3a1c9a[_0x2f55e1(0x269)] == _0x404fc9["id"]
+                );
+                return _0x348c86[0x0] ?
+                    _0x31f9e1(_0x348c86[0x0]["bachelorsOrHigher"]) :
+                    _0x12323f(0x0);
+            })["on"]("mouseover", function (_0x3a0e07, _0x5704da) {
+                const _0x4c950c = _0x54bce8;
+                _0x40dc48[_0x4c950c(0x209)]()[_0x4c950c(0x290)](0x12c)["style"](_0x4c950c(0x1f7), 0x1),
+                    _0x40dc48[_0x4c950c(0x26f)](function () {
+                        const _0x475723 = _0x4c950c;
+                        let _0x1d333f = _0x5dfe07[_0x475723(0x225)](
+                            (_0x16102a) => _0x16102a[_0x475723(0x269)] == _0x5704da["id"]
+                        );
+                        if (_0x1d333f[0x0]) {
+                            const _0x4fb9bc = _0x1d333f[0x0]["area_name"][_0x475723(0x282)](
+                                    _0x475723(0x1fa)
+                                ),
+                                _0x168e76 =
+                                _0x4fb9bc !== -0x1 ?
+                                _0x1d333f[0x0]["area_name"]["substring"](0x0, _0x4fb9bc) :
+                                _0x1d333f[0x0][_0x475723(0x32c)];
+                            return (
+                                _0x168e76 +
+                                ",\x20" +
+                                _0x1d333f[0x0][_0x475723(0x303)] +
+                                _0x475723(0x2dd) +
+                                _0x1d333f[0x0][_0x475723(0x21c)] +
+                                "%"
+                            );
+                        }
+                    })["style"]("font-size", _0x4c950c(0x239))["attr"](_0x4c950c(0x24e), function () {
+                        const _0x3e8a42 = _0x4c950c,
+                            _0x2ca4cd = _0x5dfe07["filter"](function (_0x24b671) {
+                                const _0x53705a = _0xda1b;
+                                return _0x24b671[_0x53705a(0x269)] == _0x5704da["id"];
+                            });
+                        if (_0x2ca4cd[0x0]) return _0x2ca4cd[0x0][_0x3e8a42(0x21c)];
+                        return 0x0;
+                    })[_0x4c950c(0x272)](
+                        _0x4c950c(0x229),
+                        appState["mousePos"]["x"] + 0xa + window["scrollX"] + "px"
+                    )[_0x4c950c(0x272)](
+                        _0x4c950c(0x292),
+                        appState[_0x4c950c(0x223)]["y"] + window[_0x4c950c(0x21a)] + "px"
+                    );
+            })["on"](_0x54bce8(0x1f8), function (_0x122b6a, _0x279b40) {
+                const _0x2da5de = _0x54bce8;
+                _0x40dc48[_0x2da5de(0x209)]()[_0x2da5de(0x290)](0x12c)[_0x2da5de(0x272)](_0x2da5de(0x1f7), 0x0);
+            });
+            const _0x1d1a2b = 0.5,
+                _0x28c581 = _0x512be4[_0x54bce8(0x280)](_0x54bce8(0x2da))["data"](
+                    topojson["feature"](
+                        _0x513848,
+                        _0x513848[_0x54bce8(0x2b7)][_0x54bce8(0x255)]
+                    )["features"]
+                )[_0x54bce8(0x287)]()[_0x54bce8(0x32d)](_0x54bce8(0x338));
+            _0x28c581[_0x54bce8(0x1ed)]("d", _0x5d9a53)[_0x54bce8(0x1ed)](_0x54bce8(0x2d7), _0x54bce8(0x29b))["attr"](
+                _0x54bce8(0x249), _0x1d1a2b);
+            let _0xcf689e = 0x0;
+            const _0x53a390 = [0x1, 0xc8],
+                _0x17dd9f = d3[_0x54bce8(0x2ce)]()["exponent"](0.25)[_0x54bce8(0x2d8)](_0x53a390)[_0x54bce8(0x2c8)]([
+                    2.5, 0xa
+                ]),
+                _0x4383bc = d3[_0x54bce8(0x2ce)]()["exponent"](0.25)["domain"](_0x53a390)[_0x54bce8(0x2c8)]([0.5, 0.8]),
+                _0x3ed231 = appState[_0x54bce8(0x30a)],
+                _0xbc510c = _0x512be4[_0x54bce8(0x280)](".explore-card-school")[_0x54bce8(0x337)](_0x3ed231)[_0x54bce8(
+                    0x287)]()[_0x54bce8(0x32d)](_0x54bce8(0x317));
+            appState[_0x54bce8(0x33a)]["pointSchools"] = _0xbc510c;
+            const _0x4b04e3 = _0x3ed231[_0x54bce8(0x2ba)]((_0x32f18e) => {
+                const _0x28a103 = _0x54bce8;
+                let _0x323288 = _0x5dd89e(_0x32f18e["coordinates"]);
+                return (
+                    _0x323288 == null &&
+                    ((_0x323288 = _0x5dd89e(
+                            EXPLORE_CARD[_0x28a103(0x31d)][
+                                _0xcf689e % EXPLORE_CARD[_0x28a103(0x31d)][_0x28a103(0x2f6)]
+                            ]
+                        )),
+                        (_0xcf689e += 0x1)),
+                    _0x323288
+                );
+            });
+            _0xbc510c[_0x54bce8(0x1ed)]("class", "explore-card-school")[_0x54bce8(0x1ed)]("r", _0x17dd9f(_0x53a390[
+                0x0]))[_0x54bce8(0x1ed)](_0x54bce8(0x1f7), _0x4383bc(_0x53a390[0x0]))[_0x54bce8(0x1ed)](
+                "cx",
+                (_0x12fe34, _0x3a8e00) => _0x4b04e3[_0x3a8e00][0x0]
+            )[_0x54bce8(0x1ed)](
+                "cy",
+                (_0x23a747, _0x412bce) => _0x4b04e3[_0x412bce][0x1]
+            )["on"]("mouseover", (_0x1cbda2, _0x280cfe) => {
+                const _0x79c866 = _0x54bce8;
+                _0x40dc48["transition"]()[_0x79c866(0x290)](0x12c)[_0x79c866(0x272)](_0x79c866(0x1f7), 0x1),
+                    _0x40dc48[_0x79c866(0x26f)]("" + _0x280cfe["name"])[_0x79c866(0x272)](_0x79c866(0x1f2),
+                        "15px")[_0x79c866(0x272)](
+                        _0x79c866(0x229),
+                        appState[_0x79c866(0x223)]["x"] +
+                        window[_0x79c866(0x206)] +
+                        0xa +
+                        "px"
+                    )["style"](
+                        _0x79c866(0x292),
+                        appState[_0x79c866(0x223)]["y"] + window[_0x79c866(0x21a)] + "px"
+                    );
+            })["on"]("mouseout", (_0x1b59f5) => {
+                const _0x58bbe8 = _0x54bce8;
+                _0x40dc48[_0x58bbe8(0x209)]()["duration"](0x12c)["style"]("opacity", 0x0);
+            });
+            const _0x181f80 = _0x31f9e1["quantiles"](),
+                _0x249d23 = 0x1e,
+                _0x3584a4 = 0x14,
+                _0x55a953 = 0x14,
+                _0x2bc625 = _0x2a394f[_0x54bce8(0x32d)]("g"),
+                _0x419685 = _0x2bc625["append"]("g")[_0x54bce8(0x1ed)](
+                    "id",
+                    _0x54bce8(0x278)
+                );
+            _0x419685["append"]("text")[_0x54bce8(0x2e0)](_0x54bce8(0x210))["attr"]("x", _0x3a3f6c - 0x5)[_0x54bce8(
+                    0x1ed)]("y", _0x3584a4 - 0x8),
+                _0x419685["append"](_0x54bce8(0x2e0))[_0x54bce8(0x2e0)](
+                    "\x20degree\x20or\x20higher\x20(B\x20or\x20H,\x202010\x20-\x202014)"
+                )[_0x54bce8(0x1ed)]("x", _0x3a3f6c - 0x5)["attr"]("y", _0x3584a4 + 0x7);
+            const _0x155bdd = _0x2bc625[_0x54bce8(0x280)](_0x54bce8(0x250))[_0x54bce8(0x337)](_0x181f80)[_0x54bce8(
+                0x287)]()["append"]("g")["attr"](_0x54bce8(0x2d7), _0x54bce8(0x279))["attr"](
+                _0x54bce8(0x262),
+                (_0x5c0246, _0x37dc5f) => "translate(" + _0x37dc5f * _0x249d23 + ",10)"
+            );
+            _0x155bdd[_0x54bce8(0x32d)](_0x54bce8(0x243))[_0x54bce8(0x1ed)]("class", _0x54bce8(0x1f9))["attr"]("x",
+                    _0x3a3f6c - EXPLORE_CARD[_0x54bce8(0x26d)])[_0x54bce8(0x1ed)]("y", _0x3584a4)[_0x54bce8(0x1ed)](
+                    "height", _0x55a953)["attr"](_0x54bce8(0x345), _0x249d23)["style"]("fill", function (_0x38f2cd,
+                    _0x114eb4) {
+                    return _0x5be245[_0x114eb4];
+                }),
+                _0x155bdd["append"](_0x54bce8(0x2e0))["attr"]("class", _0x54bce8(0x2bc))[_0x54bce8(0x1ed)]("x",
+                    _0x3a3f6c - EXPLORE_CARD["LEGEND_OFFSET"])[_0x54bce8(0x1ed)]("y", _0x3584a4 + _0x55a953)[_0x54bce8(
+                    0x1ed)](
+                    _0x54bce8(0x262),
+                    _0x54bce8(0x253) + _0x249d23 + ",\x20" + 0xa + ")"
+                )[_0x54bce8(0x2e0)]((_0x18415c, _0x139991) =>
+                    _0x181f80[_0x139991][_0x54bce8(0x291)](0x0)
+                );
+            const _0x44545b = d3[_0x54bce8(0x2b8)]()["scaleExtent"](_0x53a390)[_0x54bce8(0x28f)]([
+                [0x0, 0x0],
+                [_0x3a3f6c, _0x1effea],
+            ])["on"](_0x54bce8(0x2b8), _0x35d949);
+            _0x2a394f[_0x54bce8(0x230)](_0x44545b);
+            const _0x56939d = debounce(function (_0x28060a) {
+                const _0x478ecb = _0x54bce8;
+                _0xbc510c[_0x478ecb(0x1ed)]("r", _0x17dd9f(_0x28060a) / _0x28060a)["attr"](
+                        "opacity",
+                        _0x4383bc(_0x28060a)
+                    ),
+                    _0x28c581[_0x478ecb(0x1ed)](_0x478ecb(0x249), _0x1d1a2b / _0x28060a);
+            }, 0x64);
+
+            function _0x35d949(_0x401fde) {
+                const _0x49b354 = _0x54bce8;
+                _0x512be4[_0x49b354(0x1ed)](_0x49b354(0x262), _0x401fde[_0x49b354(0x262)]),
+                    _0x56939d(_0x401fde[_0x49b354(0x262)]["k"]);
+            }
+            const _0xefe6c8 = _0x428a29[_0x54bce8(0x32d)]("g")[_0x54bce8(0x1ed)]("id", _0x54bce8(0x2e5))[_0x54bce8(
+                    0x1ed)](_0x54bce8(0x2d7), _0x54bce8(0x216)),
+                _0x484822 = _0xefe6c8[_0x54bce8(0x32d)](_0x54bce8(0x2ee))["attr"](_0x54bce8(0x2d7), _0x54bce8(0x27d))[
+                    _0x54bce8(0x2e0)](_0x54bce8(0x341));
+            _0x484822["on"](_0x54bce8(0x25d), function () {
+                const _0x4e0ea5 = _0x54bce8;
+                (appState[_0x4e0ea5(0x31c)] = !appState[_0x4e0ea5(0x31c)]),
+                _0x2bc625[_0x4e0ea5(0x25c)](
+                        _0x4e0ea5(0x27f),
+                        !appState[_0x4e0ea5(0x31c)]
+                    ),
+                    _0x503b7a["classed"]("shape-no-display", !appState[_0x4e0ea5(0x31c)]);
+            });
+            const _0x5348c0 = _0xefe6c8[_0x54bce8(0x32d)](_0x54bce8(0x2ee))["attr"]("class", "btn\x20btn-light")[
+                _0x54bce8(0x2e0)](_0x54bce8(0x344));
+            _0x5348c0["on"]("click", function () {
+                const _0x2931e3 = _0x54bce8;
+                _0x2a394f[_0x2931e3(0x209)]()[_0x2931e3(0x290)](0x2ee)[_0x2931e3(0x230)](_0x44545b["transform"],
+                    d3["zoomIdentity"]);
+            });
+        }
+
+        function initConfigureCard() {
+            const _0x52b325 = _0x84fe1d;
+            initConfigureCardSelectorOptionsHelper(
+                    appState[_0x52b325(0x208)][_0x52b325(0x339)],
+                    "predominantDegree",
+                    "configure-card-predominant-degree-options"
+                ),
+                initConfigureCardSelectorOptionsHelper(
+                    appState[_0x52b325(0x208)][_0x52b325(0x21e)],
+                    "highestDegree",
+                    _0x52b325(0x33f)
+                ),
+                initConfigureCardSelectorOptionsHelper(
+                    appState[_0x52b325(0x208)][_0x52b325(0x21b)],
+                    _0x52b325(0x2a9),
+                    _0x52b325(0x242)
+                ),
+                initConfigureCardSelectorOptionsHelper(
+                    appState["CONFIGURE_CARD_DATA"]["regionValues"],
+                    _0x52b325(0x30e),
+                    "configure-card-region-options"
+                ),
+                initConfigureCardSelectorOptionsHelper(
+                    appState[_0x52b325(0x208)][_0x52b325(0x218)],
+                    _0x52b325(0x26c),
+                    _0x52b325(0x2a4)
+                ),
+                d3[_0x52b325(0x2e4)](_0x52b325(0x302))["on"](
+                    _0x52b325(0x241),
+                    (_0xd531da) => {
+                        const _0x42a7ac = _0x52b325;
+                        (appState[_0x42a7ac(0x288)] =
+                            _0xd531da[_0x42a7ac(0x2fa)][_0x42a7ac(0x29a)]),
+                        debouncedUpdateGlobalCharts();
+                    }
+                ),
+                d3["select"](_0x52b325(0x2ec))["on"](_0x52b325(0x2b6), (_0x325a31) => {
+                    const _0x4d9fd1 = _0x52b325;
+                    (appState[_0x4d9fd1(0x2c5)] =
+                        _0x325a31[_0x4d9fd1(0x2fa)][_0x4d9fd1(0x328)]),
+                    updateGlobalCharts();
+                }),
+                d3["select"]("#configure-card-clear-button")["on"]("click", () => {
+                    const _0x244cce = _0x52b325;
+                    (appState[_0x244cce(0x28d)][_0x244cce(0x339)] = []),
+                    (appState[_0x244cce(0x28d)]["highestDegreeValues"] = []),
+                    (appState[_0x244cce(0x28d)]["controlValues"] = []),
+                    (appState[_0x244cce(0x28d)][_0x244cce(0x259)] = []),
+                    (appState[_0x244cce(0x28d)][_0x244cce(0x218)] = []),
+                    (appState["configureCardSearchText"] = ""),
+                    (appState[_0x244cce(0x2c5)] = ![]),
+                    d3["selectAll"](_0x244cce(0x214))[_0x244cce(0x25c)](_0x244cce(0x2cf), ![])[_0x244cce(0x25c)](
+                            _0x244cce(0x2a5), !![]),
+                        (document["querySelector"](_0x244cce(0x302))[_0x244cce(0x29a)] = ""),
+                        (document[_0x244cce(0x27c)]("#configure-card-case-sensitive-switch")[
+                            _0x244cce(0x328)
+                        ] = ![]),
+                        updateGlobalCharts();
+                }),
+                d3["select"]("#configure-card-reset-button")["on"](_0x52b325(0x25d), () => {
+                    const _0x5ed364 = _0x52b325;
+                    (appState[_0x5ed364(0x28d)] = deepcopy(appState[_0x5ed364(0x208)])),
+                    (appState[_0x5ed364(0x288)] = ""),
+                    (appState["configureCardCaseSwitch"] = ![]),
+                    d3["selectAll"](_0x5ed364(0x214))["classed"](_0x5ed364(0x2cf), !![])[_0x5ed364(0x25c)](
+                            "btn-outline-secondary", ![]),
+                        (document[_0x5ed364(0x27c)](_0x5ed364(0x302))[_0x5ed364(0x29a)] = ""),
+                        (document[_0x5ed364(0x27c)]("#configure-card-case-sensitive-switch")[
+                            "checked"
+                        ] = ![]),
+                        updateGlobalCharts();
+                }),
+                d3[_0x52b325(0x280)](".configure-card-group-type")["on"](
+                    _0x52b325(0x25d),
+                    (_0x31747e) => {
+                        const _0x2a2eb9 = _0x52b325,
+                            _0x5ca45c = d3[_0x2a2eb9(0x2e4)](_0x31747e[_0x2a2eb9(0x2fa)])["attr"](
+                                _0x2a2eb9(0x29a)
+                            );
+                        if (_0x5ca45c !== _0x2a2eb9(0x33b)) {
+                            const _0x38daac = _0x5ca45c + "Values",
+                                _0x2c4c95 = appState["configureCardSelected"][_0x38daac],
+                                _0x10c5bf = appState[_0x2a2eb9(0x208)][_0x38daac],
+                                _0x2f44d9 = Array[_0x2a2eb9(0x2e6)](
+                                    document[_0x2a2eb9(0x247)](_0x2a2eb9(0x214))
+                                )[_0x2a2eb9(0x225)](
+                                    (_0x515139) =>
+                                    d3[_0x2a2eb9(0x2e4)](_0x515139)[_0x2a2eb9(0x1ed)](_0x2a2eb9(0x29a))[_0x2a2eb9(
+                                        0x2cd)]("|")[0x0] === _0x5ca45c
+                                );
+                            _0x2c4c95["length"] === 0x0 ||
+                                _0x2c4c95[_0x2a2eb9(0x2f6)] < _0x10c5bf[_0x2a2eb9(0x2f6)] ?
+                                ((appState[_0x2a2eb9(0x28d)][_0x38daac] = deepcopy(_0x10c5bf)),
+                                    _0x2f44d9["forEach"]((_0x2626dd) => {
+                                        const _0x398922 = _0x2a2eb9;
+                                        d3[_0x398922(0x2e4)](_0x2626dd)[_0x398922(0x25c)]("btn-secondary", !![])[
+                                            _0x398922(0x25c)](_0x398922(0x2a5), ![]);
+                                    })) :
+                                ((appState["configureCardSelected"][_0x38daac] = new Array()),
+                                    _0x2f44d9[_0x2a2eb9(0x329)]((_0x527793) => {
+                                        const _0x19eadc = _0x2a2eb9;
+                                        d3[_0x19eadc(0x2e4)](_0x527793)[_0x19eadc(0x25c)](_0x19eadc(0x2cf), ![])[
+                                            _0x19eadc(0x25c)](_0x19eadc(0x2a5), !![]);
+                                    }));
+                        } else
+                            (appState["configureCardSearchText"] = ""),
+                            (document["querySelector"]("#configure-card-text-search")[
+                                _0x2a2eb9(0x29a)
+                            ] = "");
+                        updateGlobalCharts();
+                    }
+                );
+        }
+
+        function initConfigureCardSelectorOptionsHelper(
+            _0x5824ec,
+            _0x369dfc,
+            _0x39916a
+        ) {
+            const _0x45ceb9 = _0x84fe1d;
+            _0x5824ec[_0x45ceb9(0x329)]((_0x151af3) => {
+                const _0x547560 = _0x45ceb9;
+                d3[_0x547560(0x2e4)]("#" + _0x39916a)["append"](_0x547560(0x2ee))["attr"](_0x547560(0x33e),
+                    _0x547560(0x2ee))["attr"](_0x547560(0x29a), _0x369dfc + "|" + _0x151af3)[_0x547560(
+                    0x1ed)](_0x547560(0x2d7), _0x547560(0x20d))["on"](_0x547560(0x25d), (_0x320fcc) => {
+                    const _0x1bba6f = _0x547560,
+                        [_0xc87606, _0x59bca3] =
+                        _0x320fcc["target"][_0x1bba6f(0x29a)]["split"]("|"),
+                        _0x298771 = toggleSelectedArray(
+                            appState["configureCardSelected"][_0xc87606 + _0x1bba6f(0x346)],
+                            _0x59bca3
+                        );
+                    d3[_0x1bba6f(0x2e4)](_0x320fcc[_0x1bba6f(0x2fa)])["classed"](_0x1bba6f(0x2cf),
+                            _0x298771)[_0x1bba6f(0x25c)]("btn-outline-secondary", !_0x298771),
+                        updateGlobalCharts();
+                })["text"](_0x151af3);
+            });
+        }
+
+        function toggleSelectedArray(_0x171f1a, _0x48cac4) {
+            const _0x4bb2e1 = _0x84fe1d,
+                _0x27db43 = _0x171f1a[_0x4bb2e1(0x282)](_0x48cac4);
+            return _0x27db43 !== -0x1 ?
+                (_0x171f1a["splice"](_0x27db43, 0x1), ![]) :
+                (_0x171f1a["push"](_0x48cac4), !![]);
+        }
+
+        function updateExploreCard() {
+            const _0x5abb8d = _0x84fe1d;
+            (appState[_0x5abb8d(0x22d)] = new Array()),
+            appState[_0x5abb8d(0x33a)]["pointSchools"][_0x5abb8d(0x25c)](
+                "shape-no-display",
+                (_0x6f73a4) => {
+                    const _0x5c7aee = _0x5abb8d,
+                        _0x316d68 = applyConfigureCardFilterCriteria(_0x6f73a4);
+                    return (
+                        _0x316d68 && appState[_0x5c7aee(0x22d)]["push"](_0x6f73a4), !_0x316d68
+                    );
+                }
+            );
+        }
+    </script>
+
+</body>
+
+</html>
